@@ -3,6 +3,7 @@
 
 #include <string>
 #include <Arduino.h>
+#include <src/
 
 
 #define NAMESPACE_START(name) \
