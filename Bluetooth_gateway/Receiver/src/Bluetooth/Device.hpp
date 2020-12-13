@@ -31,7 +31,7 @@ class Characteristic
 class Service
 {
     public:
-        Service(const std::string& deviceName, const std::initializer_list<Characteristic>& characteritics) :
+        Service(const std::string& serviceName, const std::initializer_list<Characteristic>& characteritics) :
             serviceName(serviceName), characteritics(characteritics)
         {
         }

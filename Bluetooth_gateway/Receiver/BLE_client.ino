@@ -25,22 +25,22 @@
 
 void setup()
 {
- //   Bluetooth::Logger::GetInstance().Initialize();
-   // Bluetooth::Scanner reader;
-   // LOG_LOW("Starting scan\n");
-    //reader.Scan();
-   // while (!reader.IsScanReady());    
-    //LOG_LOW("End of the setup\n");
+    Bluetooth::Logger::GetInstance().Initialize();
+    Bluetooth::Scanner reader;
+    LOG_LOW("Starting scan\n");
+    reader.Scan();
+    while (!reader.IsScanReady());    
+    LOG_LOW("End of the setup\n");
 }
 
 void loop() 
 {
-  //  LOG_LOW(global::tempSensor1.deviceName);
+    LOG_LOW(Devices::temperatureSensor1.deviceName);
 
  /*   if (Reader.ReadData(temperatureSensor1) == Status:::READ_SUCCESS)
     {
         Notify(temperatureSensor1);
     }*/
 
-   // delay(1000);
+    delay(1000);
 } 

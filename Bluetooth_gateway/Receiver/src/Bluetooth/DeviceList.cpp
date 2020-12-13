@@ -4,10 +4,7 @@
 
 using namespace Bluetooth;
 
-NAMESPACE_START(global)
-int a =10;
-/*
-Device temperatureSensor1
+Device Devices::temperatureSensor1
 {
     "Temperature sensor 1",
     {
@@ -31,6 +28,29 @@ Device temperatureSensor1
             }
     }
 };
-*/
 
-NAMESPACE_END
+Device Devices::preassureSensor
+{
+    "Preassure sensor 1",
+    {
+    Service
+        {"Service1",
+            {
+            Characteristic
+                {"Characteristic1"},
+            Characteristic
+                {"Characteristic2"}
+            }
+        },
+    Service
+        {"Service2",
+            {
+            Characteristic
+                {"Characteristic1"},
+            Characteristic
+                {"Characteristic2"}
+            }
+        }
+    }
+};
+
