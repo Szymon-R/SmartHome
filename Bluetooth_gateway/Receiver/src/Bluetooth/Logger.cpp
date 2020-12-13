@@ -2,6 +2,12 @@
 
 using namespace Bluetooth;
 
+Logger& Logger::GetInstance()
+{
+    static Logger logger;
+    return logger;
+}
+
 void Logger::Uart0::Init()
 {
     if(this->initialized == false)
@@ -13,7 +19,22 @@ void Logger::Uart0::Init()
     }
 }
 
+Logger::Logger()
+{
+    ;
+}
+
+bool Logger::Transmit()
+{
+    ;
+}
+
+void Logger::Initialize()
+{
+    this->uart0.Init();
+}
+
 int Logger::Uart0::Transmit(const char* src, size_t size)
 {
-    uart_write_bytes(uart_port_t::UART_NUM_0, (const char*)test_str, strlen(test_str));
+    return uart_write_bytes(uart_port_t::UART_NUM_0, src, size);
 }

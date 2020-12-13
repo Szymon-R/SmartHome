@@ -3,7 +3,7 @@
 
 #include <BLEDevice.h>
 #include <memory>
-#include "../../Utils.hpp"
+#include "Utils.hpp"
 
 NAMESPACE_START(Bluetooth)
 
@@ -19,13 +19,14 @@ struct ScanConfig
 
 static constexpr ScanConfig defaultConfig = {1349U, 449U, 5U, true, false};
 
-class Reader
+class Scanner
 {
     public:
-        Reader();
+        Scanner();
         bool Scan(const ScanConfig& config = defaultConfig);
         void InsertCallback(std::unique_ptr<BLEAdvertisedDeviceCallbacks>&& callback);
         std::vector<BLEAdvertisedDevice> GetDetectedDevices();
+        bool IsScanReady();
 
         class ScanCallback: public BLEAdvertisedDeviceCallbacks
         {
@@ -43,7 +44,6 @@ class Reader
         BLEScan* pBLEScan = BLEDevice::getScan();
         ScanCallback defaultCallback{devices};
         std::unique_ptr<BLEAdvertisedDeviceCallbacks> userCallback;
-
 };
 
 

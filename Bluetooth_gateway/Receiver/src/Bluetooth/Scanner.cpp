@@ -1,10 +1,8 @@
-#include "Reader.hpp"
-
-
+#include "Scanner.hpp"
 
 using namespace Bluetooth;
 
-Reader::Reader()
+Scanner::Scanner()
 {
     this->pBLEScan = BLEDevice::getScan();
     if (!BLEDevice::getInitialized())
@@ -13,7 +11,7 @@ Reader::Reader()
     }
 }
 
-bool Reader::Scan(const ScanConfig& config)
+bool Scanner::Scan(const ScanConfig& config)
 {
     this->scanReady = false;
     this->devices.clear();
@@ -30,9 +28,10 @@ bool Reader::Scan(const ScanConfig& config)
     pBLEScan->setActiveScan(config.activeScan);
     pBLEScan->start(config.scanTime, config.extended);
     this->scanReady = true;
+    return true;
 }
 
-void Reader::InsertCallback(std::unique_ptr<BLEAdvertisedDeviceCallbacks>&& callback)
+void Scanner::InsertCallback(std::unique_ptr<BLEAdvertisedDeviceCallbacks>&& callback)
 {
     if (this->userCallback)
     {
@@ -41,18 +40,22 @@ void Reader::InsertCallback(std::unique_ptr<BLEAdvertisedDeviceCallbacks>&& call
     }
 }
 
-std::vector<BLEAdvertisedDevice> Reader::GetDetectedDevices()
+bool Scanner::IsScanReady()
+{
+    return this->scanReady;
+}
+
+std::vector<BLEAdvertisedDevice> Scanner::GetDetectedDevices()
 {
     while (!this->scanReady);
     return this->devices;
 }
 
-Reader::ScanCallback::ScanCallback(std::vector<BLEAdvertisedDevice>& devices) : devices(devices)
+Scanner::ScanCallback::ScanCallback(std::vector<BLEAdvertisedDevice>& devices) : devices(devices)
 {
-
 }
 
-void Reader::ScanCallback::onResult(BLEAdvertisedDevice advertisedDevice)
+void Scanner::ScanCallback::onResult(BLEAdvertisedDevice advertisedDevice)
 {
     this->devices.emplace_back(advertisedDevice);
 }
