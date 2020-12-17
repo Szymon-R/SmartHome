@@ -23,6 +23,9 @@
 #include "src/Bluetooth/Scanner.hpp"
 #include "src/Bluetooth/DeviceList.hpp"
 
+
+#include "src/Rtos/Tasks.hpp"
+
 void setup()
 {
     Bluetooth::Logger::GetInstance().Initialize();
@@ -36,6 +39,10 @@ void setup()
 void loop() 
 {
     LOG_LOW(Devices::temperatureSensor1.deviceName);
+    Rtos::ReadOnce readOnce{temperatureSensor1};
+    readOnce.Execute();
+    if readOnce
+
 
  /*   if (Reader.ReadData(temperatureSensor1) == Status:::READ_SUCCESS)
     {

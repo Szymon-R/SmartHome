@@ -14,3 +14,19 @@ class Devices
 };
 
 #endif
+
+
+/*
+void ReadOnce(device d)
+{
+    if (device.connect() == false)
+        statusQueue = NOT_CONNECTED;
+        return;
+    else
+    {
+        device.Read();
+
+    }
+    
+
+}*/
