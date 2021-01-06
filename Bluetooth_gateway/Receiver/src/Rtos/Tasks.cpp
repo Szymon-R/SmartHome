@@ -32,7 +32,8 @@ void ReadOnce::Run(void* ownedObject)
     while(1)
     {
         ReadOnce* caller = reinterpret_cast<ReadOnce*>(ownedObject);
-        caller->client = BLEDevice::createClient();
+        caller->InsertStatus(Status::VALUE_READ);
+     /*   caller->client = BLEDevice::createClient();
         if (!caller->client)
         {
             LOG_HIGH("Couldn't create client!\n\r");
@@ -66,7 +67,7 @@ void ReadOnce::Run(void* ownedObject)
         {
             LOG_MEDIUM("Client not connected\n\r");
             caller->InsertStatus(Status::NOT_CONNECTED);
-        }
+        }*/
         vTaskSuspend(NULL);
     }
 }
@@ -75,12 +76,18 @@ void ReadOnce::InsertStatus(Status status)
 {
     int* a = new int;
     *a = static_cast<int>(status);
-    xQueueSend(this->statusQueue, (void*)a, 0);
+    xQueueSend(this->statusQueue, (void*)&a, 0);
 }
 
 Status ReadOnce::GetLastStatus()
 {
-    return this->lastStatus;
+    int* buffer = nullptr;
+    if (xQueueReceive(this->statusQueue, &buffer, 0))
+    {
+        int a = *buffer;
+        delete buffer;
+        return static_cast<Status>(a);
+    }    
 }
 
 ReadOnce::~ReadOnce()

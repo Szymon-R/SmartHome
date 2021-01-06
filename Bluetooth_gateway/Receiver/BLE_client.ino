@@ -31,19 +31,34 @@ std::string serviceName = "Service1";
 std::string characteristicName = "Char1";
 void setup()
 {
-    Bluetooth::Logger::GetInstance().Initialize();
+    //Bluetooth::Logger::GetInstance().Initialize();
     
-    LOG_LOW("Starting scan\n");
-    reader.Scan();
-    while (!reader.IsScanReady()); 
-    LOG_LOW("End of the setup\r\n");
+  //  LOG_LOW("Starting scan\n");
+   // reader.Scan();
+   // while (!reader.IsScanReady()); 
+  //  LOG_LOW("End of the setup\r\n");
 }
 
 void loop() 
 {
+    while(1)
+    {
+        
+    }
     LOG_LOW("Starting the loop\n\r");
     std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
     BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Devices::temperatureSensor1.deviceName);
+    Rtos::ReadOnce readOnce{Devices::temperatureSensor1, *scannedDevice};
+    readOnce.Init(Devices::temperatureSensor1[serviceName], (*Devices::temperatureSensor1[serviceName])[characteristicName]);
+    readOnce.Execute();
+    while (readOnce.GetLastStatus() != Rtos::Status::OK)
+    {
+        LOG_LOW("Waiting for status\r\n");
+        delay(1000);
+
+    }
+    LOG_LOW("Status received\r\n");
+    readOnce.~ReadOnce();
     if (scannedDevice)
     {
         LOG_LOW("Device: ", Devices::temperatureSensor1.deviceName, " found\n\r");

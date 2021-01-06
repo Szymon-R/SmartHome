@@ -27,6 +27,7 @@ enum class Status
 
 enum class Status : int
 {
+    NO_STATUS,
     UPDATE_ERROR,
     OK,
     TIMEOUT,
