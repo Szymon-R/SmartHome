@@ -26,28 +26,47 @@
 
 #include "src/Rtos/Tasks.hpp"
 
+Bluetooth::Scanner reader;
+std::string serviceName = "Service1";
+std::string characteristicName = "Char1";
 void setup()
 {
     Bluetooth::Logger::GetInstance().Initialize();
-    Bluetooth::Scanner reader;
+    
     LOG_LOW("Starting scan\n");
     reader.Scan();
-    while (!reader.IsScanReady());    
-    LOG_LOW("End of the setup\n");
+    while (!reader.IsScanReady()); 
+    LOG_LOW("End of the setup\r\n");
 }
 
 void loop() 
 {
-    LOG_LOW(Devices::temperatureSensor1.deviceName);
-    Rtos::ReadOnce readOnce{temperatureSensor1};
-    readOnce.Execute();
-    if readOnce
-
-
- /*   if (Reader.ReadData(temperatureSensor1) == Status:::READ_SUCCESS)
+    LOG_LOW("Starting the loop\n\r");
+    std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
+    BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Devices::temperatureSensor1.deviceName);
+    if (scannedDevice)
     {
-        Notify(temperatureSensor1);
-    }*/
+        LOG_LOW("Device: ", Devices::temperatureSensor1.deviceName, " found\n\r");
+        Rtos::ReadOnce readOnce{Devices::temperatureSensor1, *scannedDevice};
+        readOnce.Init(Devices::temperatureSensor1[serviceName], (*Devices::temperatureSensor1[serviceName])[characteristicName]);
+        readOnce.Execute();
+        while (readOnce.GetLastStatus() != Rtos::Status::OK)
+        {
+            LOG_LOW("Waiting for status\r\n");
+            delay(1000);
+
+        }
+        LOG_LOW("Status received\r\n");
+        readOnce.~ReadOnce();
+    }
+    
+
+
+    while(1)
+    {
+
+    }
+
 
     delay(1000);
 } 

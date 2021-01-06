@@ -45,11 +45,26 @@ bool Scanner::IsScanReady()
     return this->scanReady;
 }
 
+BLEAdvertisedDevice* Scanner::GetDeviceByName(std::vector<BLEAdvertisedDevice>& devices, const std::string& name)
+{
+    BLEAdvertisedDevice* out = nullptr;
+    for (auto& device : devices)
+    {
+        if (device.getName() == name)
+        {
+            out = &device;
+            break;
+        }
+    }
+    return out;
+}
+
 std::vector<BLEAdvertisedDevice> Scanner::GetDetectedDevices()
 {
     while (!this->scanReady);
     return this->devices;
 }
+
 
 Scanner::ScanCallback::ScanCallback(std::vector<BLEAdvertisedDevice>& devices) : devices(devices)
 {

@@ -1,9 +1,10 @@
 #ifndef _READER_HPP
 #define _READER_HPP
 
-#include <BLEDevice.h>
+
 #include <memory>
 #include "Utils.hpp"
+#include <BLEDevice.h>
 
 NAMESPACE_START(Bluetooth)
 
@@ -27,6 +28,7 @@ class Scanner
         void InsertCallback(std::unique_ptr<BLEAdvertisedDeviceCallbacks>&& callback);
         std::vector<BLEAdvertisedDevice> GetDetectedDevices();
         bool IsScanReady();
+        BLEAdvertisedDevice* GetDeviceByName(std::vector<BLEAdvertisedDevice>& devices, const std::string& name);
 
         class ScanCallback: public BLEAdvertisedDeviceCallbacks
         {
