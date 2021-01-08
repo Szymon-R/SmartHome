@@ -29,7 +29,7 @@ class Scanner
         std::vector<BLEAdvertisedDevice> GetDetectedDevices();
         bool IsScanReady();
         BLEAdvertisedDevice* GetDeviceByName(std::vector<BLEAdvertisedDevice>& devices, const std::string& name);
-
+        
         class ScanCallback: public BLEAdvertisedDeviceCallbacks
         {
             public:

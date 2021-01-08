@@ -51,7 +51,7 @@ class ReadOnce
         ReadOnce(Bluetooth::Device& dev, BLEAdvertisedDevice& scannedDev);
         QueueHandle_t statusQueue;
         void Init(Bluetooth::Service* service, Bluetooth::Characteristic* characteristic);
-        void Execute(const int priority = 3, const int stackSize = 5000);
+        void Execute(const int priority = 3, const int stackSize = 100000);
         Status GetLastStatus();
         ~ReadOnce();
 

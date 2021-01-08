@@ -2,6 +2,8 @@
 
 using namespace Rtos;
 
+static BLEUUID serviceUUID("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
+
 ReadOnce::ReadOnce(Bluetooth::Device& dev, BLEAdvertisedDevice& scannedDev) : dev(dev), scannedDev(scannedDev)
 {
     this->statusQueue =  xQueueCreate(ReadOnce::QUEUE_SIZE, sizeof(int*));
@@ -31,19 +33,23 @@ void ReadOnce::Run(void* ownedObject)
 {
     while(1)
     {
+        //heap_caps_check_integrity();
         ReadOnce* caller = reinterpret_cast<ReadOnce*>(ownedObject);
         caller->InsertStatus(Status::VALUE_READ);
-     /*   caller->client = BLEDevice::createClient();
+        caller->client = BLEDevice::createClient();
         if (!caller->client)
         {
             LOG_HIGH("Couldn't create client!\n\r");
+            vTaskSuspend(NULL);
         }
 
-        caller->client->connect(&caller->scannedDev); 
+        caller->client->connect(&caller->scannedDev);
+        delay(500); 
         if (caller->client->isConnected())
         {
-            BLERemoteService* pRemoteService = caller->client->getService(caller->service->serviceName.c_str());
-            if (pRemoteService == nullptr) 
+            BLERemoteService* pRemoteService = caller->client->getService(caller->service->serviceCode.c_str());
+           //BLERemoteService* pRemoteService = caller->client->getService(serviceUUID);
+          /*  if (pRemoteService == nullptr) 
             {
                 LOG_MEDIUM("Couldn't read service: ", caller->service->serviceName, "\n\r");
                 caller->InsertStatus(Status::SERVICE_NOT_FOUND);
@@ -51,23 +57,26 @@ void ReadOnce::Run(void* ownedObject)
             else
             {
                 // Obtain a reference to the characteristic in the service of the remote BLE server.
-                BLERemoteCharacteristic* pRemoteCharacteristic = pRemoteService->getCharacteristic(caller->characteristic->charName.c_str());
+                BLERemoteCharacteristic* pRemoteCharacteristic = pRemoteService->getCharacteristic(caller->characteristic->charCode.c_str());
                 if (pRemoteCharacteristic == nullptr) 
                 {
                     LOG_MEDIUM("Couldn't read characteristic: ", caller->characteristic->charName, "\n\r");
                     caller->InsertStatus(Status::CHARACTERISTIC_NOT_FOUND);
                 }
-                std::string value = pRemoteCharacteristic->readValue();
-                caller->dev.InsertValue(caller->service, caller->characteristic, value);
-                caller->InsertStatus(Status::VALUE_READ);
-            }
+                else
+                {
+                    std::string value = pRemoteCharacteristic->readValue();
+                    caller->dev.InsertValue(caller->service, caller->characteristic, value);
+                    caller->InsertStatus(Status::VALUE_READ);
+                }
+            }*/
             caller->client->disconnect();
         }
         else
         {
             LOG_MEDIUM("Client not connected\n\r");
             caller->InsertStatus(Status::NOT_CONNECTED);
-        }*/
+        }
         vTaskSuspend(NULL);
     }
 }
