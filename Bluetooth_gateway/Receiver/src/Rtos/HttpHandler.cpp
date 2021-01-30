@@ -4,10 +4,11 @@
 
 using namespace Rtos;
 
-HttpHandler::HttpHandler()
+HttpHandler::HttpHandler(unsigned int networkTimeout);
 {
     this->statusQueue =  xQueueCreate(HttpHandler::QUEUE_SIZE, sizeof(int*));
     this->inQueue =  xQueueCreate(HttpHandler::QUEUE_SIZE, sizeof(std::string*));
+    this->networkTimeout = networkTimeout;
 }
 
 void HttpHandler::Execute(const int priority, const int stackSize)
@@ -79,9 +80,6 @@ void HttpHandler::Run(void * ownedObject)
 {
     HttpHandler* caller = reinterpret_cast<HttpHandler*>(ownedObject);
     unsigned long lastTime = 0;
-    // Timer set to 10 minutes (600000)
-    //unsigned long timerDelay = 600000;
-    // Set timer to 5 seconds (5000)
     unsigned long timerDelay = 500;
 
 
@@ -89,13 +87,21 @@ void HttpHandler::Run(void * ownedObject)
     const char* serverName = "http://192.168.1.2:1880/update-sensor";
 
     WiFi.begin(SSID, PASSWORD);
-    LOG_MEDIUM("Connecting\n\r");
+
+    caller->timer.Start(caller->networkTimeout);
+
     while(WiFi.status() != WL_CONNECTED) 
     {
-        caller->connectionStatus = true;
-        delay(500);
+        caller->networkConnected = true;
+        if(caller->timer.IsExpired())
+        {
+            caller->InsertStatus(Status::TIMEOUT);
+            vTaskSuspend(NULL);
+        }
+        vTaskDelay(500);
     }
-    LOG_MEDIUM("Connected\n\r");
+
+    LOG_MEDIUM("Connected to network\n\r");
 
     while(1)
     {

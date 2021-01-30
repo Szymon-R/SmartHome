@@ -4,6 +4,7 @@
 #include "../Utils/Utils.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Utils/NetworkCredentials.hpp"
+#include "../Utils/TimerMilis.hpp"
 #include "Task.hpp"
 
 #include "freertos/queue.h"
@@ -19,7 +20,7 @@ NAMESPACE_START(Rtos)
 class HttpHandler : public Task
 {
     public:
-        HttpHandler();
+        HttpHandler(unsigned int networkTimeout = 5000);
         void Execute(const int priority = 3, const int stackSize = 100000);
         std::string GetData();
         void InsertData(const std::string& data);
@@ -27,8 +28,10 @@ class HttpHandler : public Task
         
     protected:
         static void Run(void * ownedObject);
-        bool connectionStatus = false;
+        unsigned int networkTimeout = 0;
+        bool networkConnected = false;
         QueueHandle_t inQueue;
+        Utils::TimerMilis timer;
 };
 
 NAMESPACE_END

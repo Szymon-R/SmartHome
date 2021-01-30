@@ -25,6 +25,9 @@
 #include "src/Rtos/Task.hpp"
 #include "src/Rtos/HttpHandler.hpp"
 
+
+#include "src/Drivers/Timer.hpp"
+
 void setup()
 {
 
@@ -67,7 +70,7 @@ void loop()
         LOG_LOW("Didn't find device\n\r");
     }
     */
-
+/*
     Utils::Logger::GetInstance().Initialize();
     Rtos::HttpHandler httpHandler;
     httpHandler.Execute();
@@ -77,5 +80,14 @@ void loop()
     while(1)
     {
 
+    }*/
+    Utils::Logger::GetInstance().Initialize();
+    while(1)
+    {
+        LOG_LOW("Timer1: ", Drivers::Timer::GetInstance().GetTime(), "\n\r");
+        vTaskDelay(999);
+        LOG_LOW("Timer2: ", Drivers::Timer::GetInstance().GetTime(), "\n\r");
+        vTaskDelay(999);
     }
+
 }

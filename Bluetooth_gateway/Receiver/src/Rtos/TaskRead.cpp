@@ -2,8 +2,6 @@
 
 using namespace Rtos;
 
-
-
 Read::Read(Bluetooth::Device& dev, BLEAdvertisedDevice& scannedDev) : dev(dev), scannedDev(scannedDev)
 {
     this->statusQueue =  xQueueCreate(ReadOnce::QUEUE_SIZE, sizeof(int*));
