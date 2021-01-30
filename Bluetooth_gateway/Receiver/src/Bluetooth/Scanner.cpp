@@ -1,5 +1,4 @@
 #include "Scanner.hpp"
-#include "Logger.hpp"
 
 using namespace Bluetooth;
 

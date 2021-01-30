@@ -2,4 +2,7 @@
 .vscode
 
 #Build files
-ArduinoOutput
+Output
+
+#Files
+NetworkCredentials.hpp

@@ -9,7 +9,7 @@
 #include <string>
 #include <sstream>
 
-NAMESPACE_START(Bluetooth)
+NAMESPACE_START(Utils)
 
 
 
@@ -17,20 +17,20 @@ NAMESPACE_START(Bluetooth)
 #ifdef LOG_LEVEL_LOW
     #define LOG_LEVEL_MEDIUM
     #define LOG_LEVEL_HIGH
-    #define LOG_LOW(...) Bluetooth::Logger::GetInstance().Transmit(__VA_ARGS__)
+    #define LOG_LOW(...) Utils::Logger::GetInstance().Transmit(__VA_ARGS__)
 #else
     #define LOG_LOW(...)
 #endif
 
 #ifdef LOG_LEVEL_MEDIUM
 #define LOG_LEVEL_HIGH
-    #define LOG_MEDIUM(...) Bluetooth::Logger::GetInstance().Transmit(__VA_ARGS__)
+    #define LOG_MEDIUM(...) Utils::Logger::GetInstance().Transmit(__VA_ARGS__)
 #else
     #define LOG_MEDIUM(...)
 #endif
 
 #ifdef LOG_LEVEL_HIGH
-    #define LOG_HIGH(...) Bluetooth::Logger::GetInstance().Transmit(__VA_ARGS__)
+    #define LOG_HIGH(...) Utils::Logger::GetInstance().Transmit(__VA_ARGS__)
 #else
     #define LOG_HIGH(...)
 #endif
@@ -60,7 +60,7 @@ class Logger
                     .rx_flow_ctrl_thresh = 122,
                 };
                 uart_port_t uartPort = uart_port_t::UART_NUM_0;
-                static constexpr int queueSize = 10;
+                static constexpr int queueSize = 50;
                 static constexpr int interruptFlags = 0;
                 static constexpr int rtsPin = 18;
                 static constexpr int ctsPin = 19;

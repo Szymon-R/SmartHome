@@ -1,4 +1,4 @@
-/*#include "Tasks.hpp"
+#include "TaskRead.hpp"
 
 using namespace Rtos;
 
@@ -7,27 +7,6 @@ using namespace Rtos;
 Read::Read(Bluetooth::Device& dev, BLEAdvertisedDevice& scannedDev) : dev(dev), scannedDev(scannedDev)
 {
     this->statusQueue =  xQueueCreate(ReadOnce::QUEUE_SIZE, sizeof(int*));
-}
-
-void Read:: InsertStatus(Status status)
-{
-    int* a = new int;
-    *a = static_cast<int>(status);
-    xQueueSend(this->statusQueue, (void*)&a, 0);
-}
-
-Status Read::GetLastStatus()
-{
-    int* buffer = nullptr;
-    if (xQueueReceive(this->statusQueue, &buffer, 0))
-    {
-        int a = *buffer;
-        LOG_LOW("Status received: ", a, "\n\r");
-        delete buffer;
-        return static_cast<Status>(a);
-    
-    }
-    return Status::NO_STATUS;
 }
 
 void ReadOnce::Init(Bluetooth::Service* service, Bluetooth::Characteristic* characteristic)
@@ -126,4 +105,4 @@ ReadOnce::~ReadOnce()
     {
         vTaskDelete(this->taskHandle);
     }
-}*/
+}

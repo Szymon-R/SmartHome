@@ -18,14 +18,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "src/Bluetooth/Logger.hpp"
+#include "src/Utils/Logger.hpp"
 #include "src/Bluetooth/Device.hpp"
 #include "src/Bluetooth/Scanner.hpp"
 #include "src/Bluetooth/DeviceList.hpp"
-
-
-#include "src/Rtos/Tasks.hpp"
-
+#include "src/Rtos/Task.hpp"
+#include "src/Rtos/HttpHandler.hpp"
 
 void setup()
 {
@@ -35,6 +33,7 @@ void setup()
 
 void loop() 
 {
+    /*
     Bluetooth::Scanner reader;
     std::string serviceName = "Service1";
     std::string characteristicName = "Characteristic1";
@@ -54,25 +53,29 @@ void loop()
         Rtos::ReadOnce readOnce{Devices::temperatureSensor1, *scannedDevice};
         readOnce.Init(Devices::temperatureSensor1[serviceName], Devices::temperatureSensor1[serviceName]->operator[](characteristicName));
         readOnce.Execute();
-        while (readOnce.GetLastStatus() != Rtos::Status::OK)
+
+        while (readOnce.GetLastStatus() != Rtos::Status::VALUE_READ)
         {
+            (*Devices::temperatureSensor1[serviceName])[characteristicName]->GetValue().value;
             LOG_LOW("Waiting for status\r\n");
-            delay(1000);
+            vTaskDelay(1000);
         }
-        LOG_LOW("Status received\r\n");
-        readOnce.~ReadOnce();
+        LOG_LOW("Value: ", (*Devices::temperatureSensor1[serviceName])[characteristicName]->GetValue().value, "\n\r");
     }
     else
     {
         LOG_LOW("Didn't find device\n\r");
     }
-    
-    
+    */
+
+    Utils::Logger::GetInstance().Initialize();
+    Rtos::HttpHandler httpHandler;
+    httpHandler.Execute();
+    while (httpHandler.GetLastStatus() != Rtos::Status::CONNECTED);
+    LOG_LOW("Success\n\r");
+    httpHandler.~HttpHandler();
     while(1)
     {
 
     }
-
-
-    delay(1000);
-} 
+}

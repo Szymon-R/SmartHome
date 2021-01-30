@@ -1,6 +1,12 @@
-/*#include "../Bluetooth/Utils.hpp"
+
+#ifndef _TASK_READ_HPP
+#define _TASK_READ_HPP
+
+#include "../Utils/Utils.hpp"
 #include "../Bluetooth/Device.hpp"
-#include "../Bluetooth/Logger.hpp"
+#include "../Utils/Logger.hpp"
+
+#include "Task.hpp"
 
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -9,29 +15,18 @@
 #include <memory>
 #include <BLEDevice.h>
 
-#ifndef _TASKS_HPP
-#define _TASKS_HPP
-
 NAMESPACE_START(Rtos)
 
 
 
-
-class Read
+class Read : public Task
 {
     public:
         Read(Bluetooth::Device& dev, BLEAdvertisedDevice& scannedDev);
-        virtual void Execute(const int priority = 3, const int stackSize = 100000) = 0;
-        Status GetLastStatus();
-        QueueHandle_t statusQueue;
         
     protected:
-        static constexpr int QUEUE_SIZE = 10;
-        Status lastStatus;
-        void InsertStatus(Status status);
         Bluetooth::Device& dev;
         BLEClient* client = nullptr;
-        TaskHandle_t *taskHandle = nullptr;
         BLEAdvertisedDevice& scannedDev;
 };
 
@@ -52,4 +47,4 @@ class ReadOnce : public Read
 
 NAMESPACE_END
 
-# endif*/
+# endif

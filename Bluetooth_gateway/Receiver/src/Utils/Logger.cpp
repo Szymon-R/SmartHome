@@ -1,6 +1,6 @@
 #include "Logger.hpp"
 
-using namespace Bluetooth;
+using namespace Utils;
 
 Logger& Logger::GetInstance()
 {

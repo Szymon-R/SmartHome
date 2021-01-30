@@ -3,7 +3,8 @@
 
 
 #include <memory>
-#include "Utils.hpp"
+#include "../Utils/Utils.hpp"
+#include "../Utils/Logger.hpp"
 #include <BLEDevice.h>
 
 NAMESPACE_START(Bluetooth)

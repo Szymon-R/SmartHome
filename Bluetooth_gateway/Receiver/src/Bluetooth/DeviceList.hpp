@@ -1,10 +1,11 @@
-#include "Utils.hpp"
-#include "Device.hpp"
-
 #ifndef _DEVICE_LIST_HPP
 #define _DEVICE_LIST_HPP
 
-using namespace Bluetooth;
+#include "../Utils/Utils.hpp"
+#include "../Utils/Logger.hpp"
+#include "Device.hpp"
+
+NAMESPACE_START(Bluetooth);
 
 class Devices
 {
@@ -12,5 +13,7 @@ class Devices
         static Device temperatureSensor1;
         static Device preassureSensor;
 };
+
+NAMESPACE_END
 
 #endif

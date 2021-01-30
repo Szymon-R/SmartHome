@@ -1,9 +1,11 @@
-#include "Utils.hpp"
-#include "Logger.hpp"
-#include <vector>
 
 #ifndef _DEVICE_HPP
 #define _DEVICE_HPP
+
+#include "../Utils/Utils.hpp"
+#include "../Utils/Logger.hpp"
+#include <list>
+#include <vector>
 
 NAMESPACE_START(Bluetooth)
 
@@ -21,19 +23,32 @@ class Characteristic
             charName(charName), charCode(charCode)
         {
 
-        }  
+        }
+
         const std::string charName;
         const std::string charCode;
-        
+
         void InsertValue(const std::string& value)
         {
             Value val;
             val.value = value;
-            this->values.emplace_back(val);
+            LOG_LOW("Inserting value: ", val.value, "\n\r");
+            this->values.push_back(val);
+        }
+
+        Value GetValue()
+        {
+            Value val;
+            if (values.size() > 0)
+            {
+                val = values.front();
+                values.pop_front();
+            }
+            return val;
         }
 
     private:
-        std::vector<Value> values;
+        std::list<Value> values;
 };
 
 
@@ -44,13 +59,14 @@ class Service
             serviceName(serviceName), serviceCode(serviceCode), characteritics(characteritics)
         {
         }
+
         const std::string serviceName;
         const std::string serviceCode;
 
         Characteristic* GetCharacteristic(const std::string& name)
         {
             Characteristic* out = nullptr;
-            for(auto cha : this->characteritics)
+            for(auto& cha : this->characteritics)
             {
                 if (cha.charName == name)
                 {
@@ -67,7 +83,7 @@ class Service
         Characteristic* operator[](const std::string& name)
         {
             Characteristic* out = nullptr;
-            for(auto cha : this->characteritics)
+            for(auto& cha : this->characteritics)
             {
                 if (cha.charName == name)
                 {
@@ -82,7 +98,7 @@ class Service
             return out;
         }
     private:
-        const std::vector<Characteristic> characteritics;
+        const std::list<Characteristic> characteritics;
 };
 
 
@@ -128,12 +144,12 @@ class Device
         }
         return out;
     }
-    void InsertValue(Service* service, Characteristic* characteristic, const std::string& value)
+    void InsertValue(Characteristic* characteristic, const std::string& value)
     {
-        this->GetService(service->serviceName)->GetCharacteristic(characteristic->charName)->InsertValue(value);
+        characteristic->InsertValue(value);
     }
     private:
-        const std::vector<Service> services;
+        const std::list<Service> services;
 };
 
 NAMESPACE_END
