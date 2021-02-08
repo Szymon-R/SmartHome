@@ -42,6 +42,14 @@ namespace std
 
     template< class T >
     constexpr bool is_floating_point_v = std::is_floating_point<T>::value;
+
+    template < class T >
+    string to_string( T t )
+    {
+        stringstream ss;
+        ss << t;
+        return ss.str();
+    }
 }
 
 

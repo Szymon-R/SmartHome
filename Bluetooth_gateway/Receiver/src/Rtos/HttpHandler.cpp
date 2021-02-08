@@ -4,11 +4,13 @@
 
 using namespace Rtos;
 
-HttpHandler::HttpHandler(unsigned int networkTimeout);
+HttpHandler::HttpHandler(std::string serverName, unsigned int networkTimeout, unsigned int refreshFrequency)
 {
     this->statusQueue =  xQueueCreate(HttpHandler::QUEUE_SIZE, sizeof(int*));
     this->inQueue =  xQueueCreate(HttpHandler::QUEUE_SIZE, sizeof(std::string*));
     this->networkTimeout = networkTimeout;
+    this->serverName = serverName;
+    this->refreshFrequency = refreshFrequency;
 }
 
 void HttpHandler::Execute(const int priority, const int stackSize)
@@ -79,13 +81,6 @@ HttpHandler::~HttpHandler()
 void HttpHandler::Run(void * ownedObject)
 {
     HttpHandler* caller = reinterpret_cast<HttpHandler*>(ownedObject);
-    unsigned long lastTime = 0;
-    unsigned long timerDelay = 500;
-
-
-    //Your Domain name with URL path or IP address with path
-    const char* serverName = "http://192.168.1.2:1880/update-sensor";
-
     WiFi.begin(SSID, PASSWORD);
 
     caller->timer.Start(caller->networkTimeout);
@@ -102,12 +97,13 @@ void HttpHandler::Run(void * ownedObject)
     }
 
     LOG_MEDIUM("Connected to network\n\r");
-
+    caller->timer.Stop();
+    caller->timer.Start(caller->refreshFrequency);
     while(1)
     {
-        if ((millis() - lastTime) > timerDelay) 
+        if (caller->timer.IsExpired()) 
         {
-            LOG_MEDIUM("Trying to connect\n\r");
+            caller->timer.Reset();
             //Check WiFi connection status
             if(WiFi.status() == WL_CONNECTED)
             {
@@ -117,14 +113,7 @@ void HttpHandler::Run(void * ownedObject)
                 caller->InsertStatus(Status::CONNECTED);
                 LOG_MEDIUM("Status inserted\n\r");
                 // Your Domain name with URL path or IP address with path
-                http.begin(serverName);
-
-                // Specify content-type header
-                http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-                // Data to send with HTTP POST
-                //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
-                // Send HTTP POST request
-                //int httpResponseCode = http.POST(httpRequestData);
+                http.begin(caller->serverName.c_str());
                 
                 // If you need an HTTP request with a content type: application/json, use the following:
                 http.addHeader("Content-Type", "application/json");
@@ -141,9 +130,10 @@ void HttpHandler::Run(void * ownedObject)
             }
             else 
             {
+                caller->InsertStatus(Status::DISCONNECTED);
+                caller->timer.Stop();
                 LOG_MEDIUM("WiFi Disconnected\n\r");
             }
         }
-        lastTime = millis();
     }
 }

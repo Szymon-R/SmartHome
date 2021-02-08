@@ -1,7 +1,6 @@
-#ifndef _TIMER_HPP
-#define _TIMER_HPP
+#ifndef _TIMER_MILIS_HPP
+#define _TIMER_MILIS_HPP
 
-#include <FreeRTOS/timers.h>
 #include "Logger.hpp"
 #include "../Drivers/Timer.hpp"
 
@@ -10,7 +9,6 @@ NAMESPACE_START(Utils)
 class TimerMilis
 {
     public:
-        TimerMilis();
         void Start(unsigned int period);
         void Reset();
         bool IsExpired();

@@ -20,7 +20,7 @@ NAMESPACE_START(Rtos)
 class HttpHandler : public Task
 {
     public:
-        HttpHandler(unsigned int networkTimeout = 5000);
+        HttpHandler(std::string serverName, unsigned int networkTimeout = 5000, unsigned int refreshFrequency = 5000);
         void Execute(const int priority = 3, const int stackSize = 100000);
         std::string GetData();
         void InsertData(const std::string& data);
@@ -29,7 +29,9 @@ class HttpHandler : public Task
     protected:
         static void Run(void * ownedObject);
         unsigned int networkTimeout = 0;
+        unsigned int refreshFrequency = 0;
         bool networkConnected = false;
+        std::string serverName;
         QueueHandle_t inQueue;
         Utils::TimerMilis timer;
 };

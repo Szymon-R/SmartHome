@@ -22,7 +22,8 @@ class Characteristic
         Characteristic(const std::string& charName, const std::string& charCode) :
             charName(charName), charCode(charCode)
         {
-
+            this->InsertValue("1000");
+            this->InsertValue("2000");
         }
 
         const std::string charName;
@@ -36,15 +37,20 @@ class Characteristic
             this->values.push_back(val);
         }
 
-        Value GetValue()
+        bool GetValue(Value& buffer) const      
         {
             Value val;
             if (values.size() > 0)
             {
-                val = values.front();
-                values.pop_front();
+                buffer = values.front();
+                return true;
             }
-            return val;
+            return false;          
+        }
+
+        uint32_t ValuesCount() const
+        {
+            return this->values.size();
         }
 
     private:
@@ -80,6 +86,10 @@ class Service
             }
             return out;
         }
+        const std::list<Characteristic>& GetCharacteristics() const
+        {
+            return this->characteritics;
+        }
         Characteristic* operator[](const std::string& name)
         {
             Characteristic* out = nullptr;
@@ -97,6 +107,11 @@ class Service
             }
             return out;
         }
+        uint32_t CharCount() const
+        {
+            return this->characteritics.size();
+        }
+
     private:
         const std::list<Characteristic> characteritics;
 };
@@ -127,6 +142,11 @@ class Device
         }
         return out;
     }
+    const std::list<Service>& GetServices() const
+    {
+        return this->services;
+    }
+
     Service* operator[](const std::string& name)
     {
         Service* out = nullptr;
@@ -147,6 +167,10 @@ class Device
     void InsertValue(Characteristic* characteristic, const std::string& value)
     {
         characteristic->InsertValue(value);
+    }
+    uint32_t ServCount() const
+    {
+        return services.size();
     }
     private:
         const std::list<Service> services;

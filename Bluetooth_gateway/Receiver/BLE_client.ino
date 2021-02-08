@@ -24,9 +24,9 @@
 #include "src/Bluetooth/DeviceList.hpp"
 #include "src/Rtos/Task.hpp"
 #include "src/Rtos/HttpHandler.hpp"
-
-
+#include "src/Network/Json.hpp"
 #include "src/Drivers/Timer.hpp"
+#include "src/Network/JsonBuilder.hpp"
 
 void setup()
 {
@@ -36,6 +36,7 @@ void setup()
 
 void loop() 
 {
+    Utils::Logger::GetInstance().Initialize();
     /*
     Bluetooth::Scanner reader;
     std::string serviceName = "Service1";
@@ -81,13 +82,20 @@ void loop()
     {
 
     }*/
-    Utils::Logger::GetInstance().Initialize();
+
+   /* 
+    Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
+    httpHandler.Execute();
+    while (httpHandler.GetLastStatus() != Rtos::Status::CONNECTED);
+    LOG_LOW("Success\n\r");*/
+   // httpHandler.~HttpHandler();
+    auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
+    auto parsed = Network::JsonBuilder::Parse(dev);
+    
     while(1)
     {
-        LOG_LOW("Timer1: ", Drivers::Timer::GetInstance().GetTime(), "\n\r");
-        vTaskDelay(999);
-        LOG_LOW("Timer2: ", Drivers::Timer::GetInstance().GetTime(), "\n\r");
-        vTaskDelay(999);
+        LOG_HIGH(parsed);
+        vTaskDelay(1000);
     }
 
 }

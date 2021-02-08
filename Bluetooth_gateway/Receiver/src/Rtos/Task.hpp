@@ -17,6 +17,7 @@ enum class Status : int
     NO_STATUS,
     UPDATE_ERROR,
     OK,
+    DISCONNECTED,
     TIMEOUT,
     VALUE_READ,
     DEVICE_NOT_FOUND,
