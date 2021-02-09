@@ -37,13 +37,25 @@ class ReadOnce : public Read
         using Read::Read;
         void Init(Bluetooth::Service* service, Bluetooth::Characteristic* characteristic);
         void Execute(const int priority = 3, const int stackSize = 100000) override;
-        ~ReadOnce();
+        ~ReadOnce() override;
 
     private:
         static void Run(void * ownedObject);
         Bluetooth::Service* service = nullptr;
         Bluetooth::Characteristic* characteristic = nullptr;
 };
+
+class ReadAll : public Read
+{
+    public:
+        using Read::Read;
+        void Execute(const int priority = 3, const int stackSize = 100000) override;
+        ~ReadAll() override;
+
+    private:
+        static void Run(void * ownedObject);
+};
+
 
 NAMESPACE_END
 

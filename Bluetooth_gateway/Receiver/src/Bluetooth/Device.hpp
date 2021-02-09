@@ -37,12 +37,13 @@ class Characteristic
             this->values.push_back(val);
         }
 
-        bool GetValue(Value& buffer) const      
+        bool GetValue(Value& buffer)
         {
             Value val;
             if (values.size() > 0)
             {
                 buffer = values.front();
+                values.pop_front();
                 return true;
             }
             return false;          

@@ -9,9 +9,9 @@ Json JsonBuilder::Create(const Bluetooth::Device& dev)
     auto services = dev.GetServices();
 
     std::vector<Json> jServices;
-    jServices.reserve(dev.ServCount() + 2);
+    jServices.reserve(dev.ServCount() + 1);
 
-    jServices.push_back(Json{"device_name:", dev.deviceName});
+    jServices.push_back(Json{"device_name", dev.deviceName});
     for (auto& srv : services)
     {
         jServices.push_back(JsonBuilder::Create(srv));
@@ -37,17 +37,18 @@ Json JsonBuilder::Create(const Bluetooth::Service& serv)
 }
 
 
-Json JsonBuilder::Create(const Bluetooth::Characteristic& chr)
+Json JsonBuilder::Create(Bluetooth::Characteristic& chr)
 {
     Bluetooth::Value val;
     std::vector<Json> values;
     values.reserve(chr.ValuesCount() + 2);
+    values.push_back(Json{"char_name", chr.charName});
+    values.push_back(Json{"char_code", chr.charCode});
     while (chr.GetValue(val))
     {
         values.push_back(JsonBuilder::Create(val));
     }
-    values.push_back(Json{"char_name", chr.charName});
-    values.push_back(Json{"char_code", chr.charCode});
+
     return Json{"Characteristic", values};
 }
 
@@ -61,22 +62,54 @@ Json JsonBuilder::Create(const Bluetooth::Value& val)
 std::string JsonBuilder::Parse(const Json& j)
 {
     std::stringstream stream;
+    static int spacebarCounter = 0;
+
+    stream << JsonBuilder::Indent(spacebarCounter);
     
-    stream << "{" << JsonBuilder::Indent(j.tag) << ": ";
-    for (auto& element : j.jsons)
+    stream << JsonBuilder::Apostrof(j.tag) << ": ";
+
+    if (j.jsons.size() > 0)
     {
-        stream << JsonBuilder::Parse(element);
+        stream << "{";
+        ++spacebarCounter;
+    }
+
+    for (int i = 0; i < j.jsons.size(); ++i)
+    {
+        stream << "\n\r";
+        stream << JsonBuilder::Parse(j.jsons[i]);
+        if (j.jsons.size() > 1 && i < j.jsons.size() - 1 )
+        {
+            stream << ",";
+        }
+    }
+
+    if (j.jsons.size() > 0)
+    {
+        stream << "\n\r";
+        stream << JsonBuilder::Indent(--spacebarCounter);
+        stream << "}";
     }
     stream << JsonBuilder::Parse(j.elements);
 
-    return stream.str();
+    return stream.str() ;
 }
 
-std::string JsonBuilder::Indent(std::string element)
+std::string JsonBuilder::Apostrof(std::string element)
 {
     return "\"" + element + "\"";
 }
 
+std::string JsonBuilder::Indent(const int counter)
+{
+    std::string str;
+    str.reserve(counter);
+    for (int i=0; i < counter; ++i)
+    {
+        str += "  ";
+    }
+    return str;
+}
 std::string JsonBuilder::Parse(const std::vector<Element>& elements)
 {
     std::stringstream stream;
@@ -95,7 +128,6 @@ std::string JsonBuilder::Parse(const std::vector<Element>& elements)
         {
             stream << "]";
         }
-        stream << "\n  ";
     }
     return stream.str();
 }

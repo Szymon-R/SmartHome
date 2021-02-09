@@ -22,7 +22,7 @@
 #include "src/Bluetooth/Device.hpp"
 #include "src/Bluetooth/Scanner.hpp"
 #include "src/Bluetooth/DeviceList.hpp"
-#include "src/Rtos/Task.hpp"
+#include "src/Rtos/TaskRead.hpp"
 #include "src/Rtos/HttpHandler.hpp"
 #include "src/Network/Json.hpp"
 #include "src/Drivers/Timer.hpp"
@@ -36,66 +36,43 @@ void setup()
 
 void loop() 
 {
-    Utils::Logger::GetInstance().Initialize();
-    /*
-    Bluetooth::Scanner reader;
-    std::string serviceName = "Service1";
-    std::string characteristicName = "Characteristic1";
+    //Utils::Logger::GetInstance().Initialize();
+  //  Bluetooth::Scanner reader;
+   // Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
 
-    Bluetooth::Logger::GetInstance().Initialize();
-    LOG_LOW("Starting scan\r\n");
+  //  httpHandler.Execute();
+  /*  LOG_LOW("Starting scan\r\n");
     reader.Scan();
     while (!reader.IsScanReady()); 
-    LOG_LOW("End of the setup\r\n");
+    LOG_LOW("Scan completed\r\n");
 
-    LOG_LOW("Starting the loop\n\r");
     std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
-    BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Devices::temperatureSensor1.deviceName);
+    BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Bluetooth::Devices::temperatureSensor1.deviceName);
+    Rtos::ReadAll readAll{Bluetooth::Devices::temperatureSensor1, *scannedDevice};
+    
     if (scannedDevice)
     {
-        LOG_LOW("Device: ", Devices::temperatureSensor1.deviceName, " found\n\r");
-        Rtos::ReadOnce readOnce{Devices::temperatureSensor1, *scannedDevice};
-        readOnce.Init(Devices::temperatureSensor1[serviceName], Devices::temperatureSensor1[serviceName]->operator[](characteristicName));
-        readOnce.Execute();
+        LOG_LOW("Device: ", Bluetooth::Devices::temperatureSensor1.deviceName, " found\n\r");
+        readAll.Execute();
+    }
 
-        while (readOnce.GetLastStatus() != Rtos::Status::VALUE_READ)
+   while(1)
+   {
+        if (readAll.GetLastStatus() == Rtos::Status::VALUE_READ)
         {
-            (*Devices::temperatureSensor1[serviceName])[characteristicName]->GetValue().value;
-            LOG_LOW("Waiting for status\r\n");
-            vTaskDelay(1000);
+            LOG_LOW("Status received\r\n");
+            if (httpHandler.GetLastStatus() != Rtos::Status::CONNECTED)
+            {
+                auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
+                auto parsed = Network::JsonBuilder::Parse(dev);
+                LOG_HIGH(parsed, "\n\r");
+            }
         }
-        LOG_LOW("Value: ", (*Devices::temperatureSensor1[serviceName])[characteristicName]->GetValue().value, "\n\r");
-    }
-    else
-    {
-        LOG_LOW("Didn't find device\n\r");
-    }
-    */
-/*
-    Utils::Logger::GetInstance().Initialize();
-    Rtos::HttpHandler httpHandler;
-    httpHandler.Execute();
-    while (httpHandler.GetLastStatus() != Rtos::Status::CONNECTED);
-    LOG_LOW("Success\n\r");
-    httpHandler.~HttpHandler();
-    while(1)
-    {
-
-    }*/
-
-   /* 
-    Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
-    httpHandler.Execute();
-    while (httpHandler.GetLastStatus() != Rtos::Status::CONNECTED);
-    LOG_LOW("Success\n\r");*/
-   // httpHandler.~HttpHandler();
-    auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
-    auto parsed = Network::JsonBuilder::Parse(dev);
-    
-    while(1)
-    {
-        LOG_HIGH(parsed);
         vTaskDelay(1000);
-    }
-
+   }
+   */
+  while (1)
+  {
+    vTaskDelay(1000);
+  }
 }

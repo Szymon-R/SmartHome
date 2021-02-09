@@ -24,7 +24,7 @@ class HttpHandler : public Task
         void Execute(const int priority = 3, const int stackSize = 100000);
         std::string GetData();
         void InsertData(const std::string& data);
-        ~HttpHandler();
+        ~HttpHandler() override;
         
     protected:
         static void Run(void * ownedObject);

@@ -32,6 +32,7 @@ class Task
     public:
         virtual void Execute(const int priority = 3, const int stackSize = 100000) = 0;
         Status GetLastStatus();
+        virtual ~Task(){};
         QueueHandle_t statusQueue;
         
     protected:

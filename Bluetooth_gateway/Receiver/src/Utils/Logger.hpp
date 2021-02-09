@@ -70,7 +70,7 @@ class Logger
                 void Init();
 
             private:
-                static constexpr size_t BUFFER_SIZE = 2 * 2048;
+                static constexpr size_t BUFFER_SIZE = 2 * 1024;
                 QueueHandle_t uartQueue;
                 bool initialized = false;                
         };
