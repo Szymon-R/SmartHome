@@ -83,26 +83,7 @@ void ReadOnce::Run(void* ownedObject)
 
 ReadOnce::~ReadOnce()
 {
-    LOG_LOW("There are: ", ReadOnce::QUEUE_SIZE - uxQueueSpacesAvailable(this->statusQueue), " elements on queue\r\n");
-    while (uxQueueSpacesAvailable(this->statusQueue) != ReadOnce::QUEUE_SIZE)
-    {
-        LOG_LOW("Deleting item\r\n");
-        int* buffer = nullptr;
-        xQueueReceive(this->statusQueue, &buffer, 0);
-        if (!buffer)
-        {
-            LOG_HIGH("Empty element received from queue\r\n");
-        }
-        else
-        {
-            delete buffer;
-            LOG_LOW("Item deleted\r\n");
-        }
-    }
-    if (this->taskHandle)
-    {
-        vTaskDelete(this->taskHandle);
-    }
+
 }
 
 

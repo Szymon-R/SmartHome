@@ -41,22 +41,7 @@ std::string HttpHandler::GetData()
 
 HttpHandler::~HttpHandler()
 {
-    LOG_LOW("There are: ", HttpHandler::QUEUE_SIZE - uxQueueSpacesAvailable(this->statusQueue), " elements on queue\r\n");
-    while (uxQueueSpacesAvailable(this->statusQueue) != HttpHandler::QUEUE_SIZE)
-    {
-        LOG_LOW("Deleting item\r\n");
-        int* buffer = nullptr;
-        xQueueReceive(this->statusQueue, &buffer, 0);
-        if (!buffer)
-        {
-            LOG_HIGH("Empty element received from queue\r\n");
-        }
-        else
-        {
-            delete buffer;
-            LOG_LOW("Item deleted\r\n");
-        }
-    }
+    LOG_LOW("Handle destructor called\r\n");
     while (uxQueueSpacesAvailable(this->inQueue) != HttpHandler::QUEUE_SIZE)
     {
         LOG_LOW("Deleting item\r\n");
@@ -83,27 +68,27 @@ void HttpHandler::Run(void * ownedObject)
     HttpHandler* caller = reinterpret_cast<HttpHandler*>(ownedObject);
     WiFi.begin(SSID, PASSWORD);
 
-    caller->timer.Start(caller->networkTimeout);
+   // caller->timer.Start(caller->networkTimeout);
 
     while(WiFi.status() != WL_CONNECTED) 
     {
         caller->networkConnected = true;
-        if(caller->timer.IsExpired())
+      //  if(caller->timer.IsExpired())
         {
-            caller->InsertStatus(Status::TIMEOUT);
-            vTaskSuspend(NULL);
+          //  caller->InsertStatus(Status::TIMEOUT);
+           // vTaskSuspend(NULL);
         }
         vTaskDelay(500);
     }
 
     LOG_MEDIUM("Connected to network\n\r");
-    caller->timer.Stop();
-    caller->timer.Start(caller->refreshFrequency);
+  //  caller->timer.Stop();
+  //  caller->timer.Start(caller->refreshFrequency);
     while(1)
     {
-        if (caller->timer.IsExpired()) 
+       // if (caller->timer.IsExpired()) 
         {
-            caller->timer.Reset();
+         //   caller->timer.Reset();
             //Check WiFi connection status
             if(WiFi.status() == WL_CONNECTED)
             {
@@ -131,7 +116,7 @@ void HttpHandler::Run(void * ownedObject)
             else 
             {
                 caller->InsertStatus(Status::DISCONNECTED);
-                caller->timer.Stop();
+              //  caller->timer.Stop();
                 LOG_MEDIUM("WiFi Disconnected\n\r");
             }
         }

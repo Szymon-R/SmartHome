@@ -30,9 +30,10 @@ enum class Status : int
 class Task
 {
     public:
+        Task();
         virtual void Execute(const int priority = 3, const int stackSize = 100000) = 0;
         Status GetLastStatus();
-        virtual ~Task(){};
+        virtual ~Task();
         QueueHandle_t statusQueue;
         
     protected:

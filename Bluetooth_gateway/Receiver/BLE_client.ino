@@ -1,6 +1,4 @@
 #include <BLEDevice.h>
-#include "driver/uart.h"
-#include "driver/uart_select.h"
 //#include "BLEScan.h"
 
 #include <stdio.h>
@@ -13,7 +11,6 @@
 #include "esp_log.h"
 #include "esp_vfs.h"
 #include "esp_vfs_dev.h"
-#include "driver/uart.h"
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,20 +25,25 @@
 #include "src/Drivers/Timer.hpp"
 #include "src/Network/JsonBuilder.hpp"
 
+
+Bluetooth::Scanner* reader;
+Rtos::HttpHandler* httpHandler;
+
 void setup()
 {
-
-
+  Utils::Logger::GetInstance().Initialize();
+  reader =  new Bluetooth::Scanner;
+  httpHandler = new Rtos::HttpHandler("http://192.168.1.2:1880/update-sensor");
 }
 
 void loop() 
 {
-    //Utils::Logger::GetInstance().Initialize();
-  //  Bluetooth::Scanner reader;
-   // Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
+    
 
-  //  httpHandler.Execute();
-  /*  LOG_LOW("Starting scan\r\n");
+
+   httpHandler->Execute();
+   //httpHandler.~HttpHandler();
+   /* LOG_LOW("Starting scan\r\n");
     reader.Scan();
     while (!reader.IsScanReady()); 
     LOG_LOW("Scan completed\r\n");
@@ -49,7 +51,7 @@ void loop()
     std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
     BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Bluetooth::Devices::temperatureSensor1.deviceName);
     Rtos::ReadAll readAll{Bluetooth::Devices::temperatureSensor1, *scannedDevice};
-    
+    /*
     if (scannedDevice)
     {
         LOG_LOW("Device: ", Bluetooth::Devices::temperatureSensor1.deviceName, " found\n\r");

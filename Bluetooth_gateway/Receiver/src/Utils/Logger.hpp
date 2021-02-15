@@ -60,7 +60,7 @@ class Logger
                     .rx_flow_ctrl_thresh = 122,
                 };
                 uart_port_t uartPort = uart_port_t::UART_NUM_0;
-                static constexpr int queueSize = 50;
+                static constexpr int queueSize = 100;
                 static constexpr int interruptFlags = 0;
                 static constexpr int rtsPin = 18;
                 static constexpr int ctsPin = 19;
