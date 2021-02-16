@@ -33,7 +33,7 @@ class Characteristic
         {
             Value val;
             val.value = value;
-            LOG_LOW("Inserting value: ", val.value, "\n\r");
+            //LOG_LOW("Inserting value: ", val.value, "\n\r");
             this->values.push_back(val);
         }
 

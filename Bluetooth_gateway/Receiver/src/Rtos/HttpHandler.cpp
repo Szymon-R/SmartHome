@@ -15,6 +15,7 @@ HttpHandler::HttpHandler(std::string serverName, unsigned int networkTimeout, un
 
 void HttpHandler::Execute(const int priority, const int stackSize)
 {
+    LOG_HIGH("Start of task Http handler\r\n");
         if (xTaskCreate(HttpHandler::Run,
                     "HttpHandler",
                     stackSize,
@@ -25,6 +26,7 @@ void HttpHandler::Execute(const int priority, const int stackSize)
     {
         LOG_HIGH("Couldn't create task: HttpHandler\r\n");
     }
+    LOG_HIGH("End of task Http handler\r\n");
 }
 
 void HttpHandler::InsertData(const std::string& data)
@@ -65,30 +67,31 @@ HttpHandler::~HttpHandler()
 
 void HttpHandler::Run(void * ownedObject)
 {
+    LOG_LOW("Starting task http handler\n\r");
     HttpHandler* caller = reinterpret_cast<HttpHandler*>(ownedObject);
     WiFi.begin(SSID, PASSWORD);
 
-   // caller->timer.Start(caller->networkTimeout);
+    caller->timer.Start(caller->networkTimeout);
 
     while(WiFi.status() != WL_CONNECTED) 
     {
         caller->networkConnected = true;
-      //  if(caller->timer.IsExpired())
+        if(caller->timer.IsExpired())
         {
-          //  caller->InsertStatus(Status::TIMEOUT);
-           // vTaskSuspend(NULL);
+            caller->InsertStatus(Status::TIMEOUT);
+            vTaskSuspend(NULL);
         }
         vTaskDelay(500);
     }
 
     LOG_MEDIUM("Connected to network\n\r");
-  //  caller->timer.Stop();
-  //  caller->timer.Start(caller->refreshFrequency);
+    caller->timer.Stop();
+    caller->timer.Start(caller->refreshFrequency);
     while(1)
     {
-       // if (caller->timer.IsExpired()) 
+        if (caller->timer.IsExpired()) 
         {
-         //   caller->timer.Reset();
+            caller->timer.Reset();
             //Check WiFi connection status
             if(WiFi.status() == WL_CONNECTED)
             {
@@ -116,7 +119,7 @@ void HttpHandler::Run(void * ownedObject)
             else 
             {
                 caller->InsertStatus(Status::DISCONNECTED);
-              //  caller->timer.Stop();
+                caller->timer.Stop();
                 LOG_MEDIUM("WiFi Disconnected\n\r");
             }
         }

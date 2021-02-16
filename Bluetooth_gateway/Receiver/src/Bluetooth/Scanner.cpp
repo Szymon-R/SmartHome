@@ -5,14 +5,14 @@ using namespace Bluetooth;
 Scanner::Scanner()
 {
     this->pBLEScan = BLEDevice::getScan();
-    if (!BLEDevice::getInitialized())
-    {
-        BLEDevice::init("");
-    }
 }
 
 bool Scanner::Scan(const ScanConfig& config)
 {
+    if (!BLEDevice::getInitialized())
+    {
+        BLEDevice::init("");
+    }
     this->scanReady = false;
     this->devices.clear();
     if (this->userCallback)
@@ -28,6 +28,10 @@ bool Scanner::Scan(const ScanConfig& config)
     pBLEScan->setActiveScan(config.activeScan);
     pBLEScan->start(config.scanTime, config.extended);
     this->scanReady = true;
+    if (BLEDevice::getInitialized())
+    {
+        BLEDevice::deinit(false);
+    }
     return true;
 }
 

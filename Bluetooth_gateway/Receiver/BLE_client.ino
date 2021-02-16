@@ -1,13 +1,13 @@
-#include <BLEDevice.h>
-//#include "BLEScan.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include <stdio.h>
 #include <sys/fcntl.h>
 #include <sys/errno.h>
 #include <sys/unistd.h>
 #include <sys/select.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+
 #include "esp_log.h"
 #include "esp_vfs.h"
 #include "esp_vfs_dev.h"
@@ -26,22 +26,21 @@
 #include "src/Network/JsonBuilder.hpp"
 
 
-Bluetooth::Scanner* reader;
-Rtos::HttpHandler* httpHandler;
 
 void setup()
 {
   Utils::Logger::GetInstance().Initialize();
-  reader =  new Bluetooth::Scanner;
-  httpHandler = new Rtos::HttpHandler("http://192.168.1.2:1880/update-sensor");
 }
 
 void loop() 
-{
+{  
     
+    Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
+    LOG_HIGH("Starting program\n\r");
 
+    Bluetooth::Scanner reader;
 
-   httpHandler->Execute();
+    httpHandler.Execute();
    //httpHandler.~HttpHandler();
    /* LOG_LOW("Starting scan\r\n");
     reader.Scan();
@@ -73,8 +72,7 @@ void loop()
         vTaskDelay(1000);
    }
    */
-  while (1)
-  {
-    vTaskDelay(1000);
-  }
+while(1)
+  {vTaskDelay(500);}
+
 }
