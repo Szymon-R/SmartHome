@@ -15,7 +15,6 @@ HttpHandler::HttpHandler(std::string serverName, unsigned int networkTimeout, un
 
 void HttpHandler::Execute(const int priority, const int stackSize)
 {
-    LOG_HIGH("Start of task Http handler\r\n");
         if (xTaskCreate(HttpHandler::Run,
                     "HttpHandler",
                     stackSize,
@@ -26,7 +25,6 @@ void HttpHandler::Execute(const int priority, const int stackSize)
     {
         LOG_HIGH("Couldn't create task: HttpHandler\r\n");
     }
-    LOG_HIGH("End of task Http handler\r\n");
 }
 
 void HttpHandler::InsertData(const std::string& data)
@@ -67,61 +65,88 @@ HttpHandler::~HttpHandler()
 
 void HttpHandler::Run(void * ownedObject)
 {
-    LOG_LOW("Starting task http handler\n\r");
+    static constexpr int IDLE = 0;
+    static constexpr int INIT = 1;
+    static constexpr int RUN = 2;
+    static constexpr int EXIT = 3;
+
     HttpHandler* caller = reinterpret_cast<HttpHandler*>(ownedObject);
-    WiFi.begin(SSID, PASSWORD);
-
-    caller->timer.Start(caller->networkTimeout);
-
-    while(WiFi.status() != WL_CONNECTED) 
+    int state = INIT;
+    while (1)
     {
-        caller->networkConnected = true;
-        if(caller->timer.IsExpired())
-        {
-            caller->InsertStatus(Status::TIMEOUT);
-            vTaskSuspend(NULL);
-        }
-        vTaskDelay(500);
-    }
 
-    LOG_MEDIUM("Connected to network\n\r");
-    caller->timer.Stop();
-    caller->timer.Start(caller->refreshFrequency);
-    while(1)
-    {
-        if (caller->timer.IsExpired()) 
+        switch (state)
         {
-            caller->timer.Reset();
-            //Check WiFi connection status
-            if(WiFi.status() == WL_CONNECTED)
+            case IDLE:
             {
-                
-                LOG_MEDIUM("No longer trying\n\r");
+                caller->timer.Start(caller->refreshFrequency);
+                if (caller->timer.IsExpired())
+                {
+                    caller->timer.Stop();
+                    state = INIT;
+                }
+            }
+            break;
+
+            case INIT:
+            {
+                if (caller->radioGuard.Acquire(Utils::Protocol::BLUETOOTH, 3000))
+                {
+                    WiFi.begin(SSID, PASSWORD);  
+                    caller->timer.Start(caller->networkTimeout);
+                    while(WiFi.status() != WL_CONNECTED) 
+                    {
+                        caller->networkConnected = true;
+                        if(caller->timer.IsExpired())
+                        {
+                            caller->timer.Stop();
+                            caller->InsertStatus(Status::TIMEOUT);
+                            state = IDLE;
+                            break;
+                        }
+                        vTaskDelay(100);
+                    }
+                    if (caller->networkConnected)
+                    {
+                        caller->timer.Stop();
+                        caller->InsertStatus(Status::CONNECTED);
+                        caller->networkConnected = false;
+                        LOG_MEDIUM("Status inserted\n\r");
+                        state = RUN;
+                    }
+                }
+                else
+                {
+                    state = IDLE;
+                }
+            }
+            break;
+
+            case RUN:
+            {
                 HTTPClient http;
-                caller->InsertStatus(Status::CONNECTED);
-                LOG_MEDIUM("Status inserted\n\r");
                 // Your Domain name with URL path or IP address with path
                 http.begin(caller->serverName.c_str());
                 
                 // If you need an HTTP request with a content type: application/json, use the following:
                 http.addHeader("Content-Type", "application/json");
                 int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
-
-                // If you need an HTTP request with a content type: text/plain
-                //http.addHeader("Content-Type", "text/plain");
-                //int httpResponseCode = http.POST("Hello, World!");
-                
                 LOG_MEDIUM("HTTP Response code: ", httpResponseCode, "\n\r");
                     
-                // Free resources
                 http.end();
+                state = EXIT;
             }
-            else 
+            break;
+
+            case EXIT:
             {
-                caller->InsertStatus(Status::DISCONNECTED);
-                caller->timer.Stop();
-                LOG_MEDIUM("WiFi Disconnected\n\r");
+                caller->radioGuard.Release(Utils::Protocol::BLUETOOTH, 3000);
+                state = IDLE;
             }
+            break;
+
+            default:
+            break;
         }
     }
 }

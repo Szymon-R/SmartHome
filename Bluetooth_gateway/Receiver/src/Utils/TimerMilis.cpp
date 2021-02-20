@@ -12,7 +12,7 @@ void TimerMilis::Start(unsigned int period)
     }
     else
     {
-        LOG_MEDIUM("Couldn't start. Timer is already running\n\r");
+       // LOG_MEDIUM("Couldn't start. Timer is already running\n\r");
     }
 }
 
@@ -33,11 +33,14 @@ bool TimerMilis::IsExpired()
     bool result = false;
     if (!this->isrunning)
     {
-        LOG_MEDIUM("Couldn't check if expired. Timer is not running\n\r");
+      //  LOG_MEDIUM("Couldn't check if expired. Timer is not running\n\r");
     }
     else
     {
+        
         result = (Drivers::Timer::GetInstance().GetMilis() >= (this->startTime + this->period));
+        uint32_t time = Drivers::Timer::GetInstance().GetMilis();
+        //LOG_LOW("Time: ", time, " start_time: ", startTime, " period: ", period, " result: ", result, "\n\r");
     }
     return result;
 }

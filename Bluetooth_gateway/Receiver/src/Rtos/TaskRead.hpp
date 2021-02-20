@@ -5,6 +5,7 @@
 #include "../Utils/Utils.hpp"
 #include "../Bluetooth/Device.hpp"
 #include "../Utils/Logger.hpp"
+#include "../Utils/RadioGuard.hpp"
 
 #include "Task.hpp"
 
@@ -25,6 +26,7 @@ class Read : public Task
         Read(Bluetooth::Device& dev, BLEAdvertisedDevice& scannedDev);
         
     protected:
+        Utils::RadioGuard radioGuard;
         Bluetooth::Device& dev;
         BLEClient* client = nullptr;
         BLEAdvertisedDevice& scannedDev;
@@ -43,6 +45,7 @@ class ReadOnce : public Read
         static void Run(void * ownedObject);
         Bluetooth::Service* service = nullptr;
         Bluetooth::Characteristic* characteristic = nullptr;
+
 };
 
 class ReadAll : public Read

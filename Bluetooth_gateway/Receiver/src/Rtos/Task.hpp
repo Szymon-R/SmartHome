@@ -3,6 +3,7 @@
 
 #include "../Utils/Utils.hpp"
 #include "../Utils/Logger.hpp"
+#include "../Utils/RadioGuard.hpp"
 
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -37,6 +38,7 @@ class Task
         QueueHandle_t statusQueue;
         
     protected:
+        Utils::RadioGuard radioGuard;
         static constexpr int QUEUE_SIZE = 10;
         Status lastStatus;
         void InsertStatus(Status status);

@@ -35,8 +35,8 @@ void setup()
 void loop() 
 {  
     
-    Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
-    LOG_HIGH("Starting program\n\r");
+   Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
+   LOG_HIGH("Starting program\n\r");
 
     Bluetooth::Scanner reader;
 
