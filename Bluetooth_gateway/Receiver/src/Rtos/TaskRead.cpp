@@ -30,7 +30,6 @@ void ReadOnce::Execute(const int priority, const int stackSize)
 
 void ReadOnce::Run(void* ownedObject)
 {
-
     while(1)
     {
         ReadOnce* caller = reinterpret_cast<ReadOnce*>(ownedObject);
@@ -82,7 +81,6 @@ void ReadOnce::Run(void* ownedObject)
 }
 
 
-
 ReadOnce::~ReadOnce()
 {
 
@@ -105,75 +103,108 @@ void ReadAll::Execute(const int priority, const int stackSize)
 
 void ReadAll::Run(void* ownedObject)
 {
-    ReadAll* caller = reinterpret_cast<ReadAll*>(ownedObject);
-    caller->client = BLEDevice::createClient();
-    if (!caller->client)
-    {
-        LOG_HIGH("Couldn't create client!\n\r");
-        vTaskSuspend(NULL);
-    }
 
-    while(1)
+    static constexpr int IDLE = 0;
+    static constexpr int INIT = 1;
+    static constexpr int RUN = 2;
+    static constexpr int EXIT = 3;
+
+    ReadAll* caller = reinterpret_cast<ReadAll*>(ownedObject);
+    int state = INIT;
+    while (1)
     {
-        if (!caller->radioGuard.Acquire(Utils::Protocol::BLUETOOTH))
+
+        switch (state)
         {
-            LOG_HIGH("Couldn't acquire bluetooth radio for ReadAll class.\n\r");
-            caller->InsertStatus(Status::NOT_CONNECTED);
-        }
-        else
-        {
-            caller->client->connect(&caller->scannedDev);
-            vTaskDelay(500);
-            if (caller->client->isConnected())
+            case IDLE:
             {
-                LOG_LOW("Client connected\n\r");
-                const auto& services = caller->dev.GetServices();
-                for (auto& service : services)
+
+            }
+            break;
+
+            case INIT:
+            {
+                if (!caller->radioGuard.Acquire(Utils::Protocol::BLUETOOTH))
                 {
-                    BLERemoteService* pRemoteService = caller->client->getService(service.serviceCode.c_str());
-                    if (pRemoteService == nullptr)
+                    LOG_HIGH("Couldn't acquire bluetooth radio for ReadAll class.\n\r");
+                    caller->InsertStatus(Status::NOT_CONNECTED);
+                }
+                else
+                {
+                    state = RUN;
+                    caller->client = BLEDevice::createClient();
+                    if (!caller->client)
                     {
-                        LOG_MEDIUM("Couldn't find service: ", service.serviceName);
-                    }
-                    else
-                    {
-                        const auto& characteristics = service.GetCharacteristics();
-                        for (auto& characteristic : characteristics)
-                        {
-                            BLERemoteCharacteristic* pRemoteCharacteristic = pRemoteService->getCharacteristic(characteristic.charCode.c_str());
-                            if (pRemoteCharacteristic == nullptr) 
-                            {
-                                LOG_MEDIUM("Couldn't read characteristic: ", characteristic.charName, "\n\r");
-                            }
-                            else
-                            {
-                                std::string value = pRemoteCharacteristic->readValue();
-                                LOG_LOW("Read value: ", value, "\n\r");
-                                caller->dev.InsertValue(const_cast<Bluetooth::Characteristic*>(&characteristic), value);
-                                caller->InsertStatus(Status::VALUE_READ);
-                            }
-                        }
+                        LOG_HIGH("Couldn't create client!\n\r");
+                        vTaskSuspend(NULL);
                     }
                 }
-                caller->client->disconnect();
-            }
-            else
-            {
-                LOG_MEDIUM("Client not connected\n\r");
-                caller->InsertStatus(Status::NOT_CONNECTED);
-            }
 
-            if (!caller->radioGuard.Release(Utils::Protocol::BLUETOOTH))
-            {
-                LOG_HIGH("Couldn't acquire bluetooth radio for ReadAll class.\n\r");
-                caller->InsertStatus(Status::NOT_CONNECTED);
             }
+            break;
+
+            case RUN:
+            {
+                caller->client->connect(&caller->scannedDev);
+                vTaskDelay(500);
+                if (caller->client->isConnected())
+                {
+                    LOG_LOW("Client connected\n\r");
+                    const auto& services = caller->dev.GetServices();
+                    for (auto& service : services)
+                    {
+                        BLERemoteService* pRemoteService = caller->client->getService(service.serviceCode.c_str());
+                        if (pRemoteService == nullptr)
+                        {
+                            LOG_MEDIUM("Couldn't find service: ", service.serviceName);
+                        }
+                        else
+                        {
+                            const auto& characteristics = service.GetCharacteristics();
+                            for (auto& characteristic : characteristics)
+                            {
+                                BLERemoteCharacteristic* pRemoteCharacteristic = pRemoteService->getCharacteristic(characteristic.charCode.c_str());
+                                if (pRemoteCharacteristic == nullptr) 
+                                {
+                                    LOG_MEDIUM("Couldn't read characteristic: ", characteristic.charName, "\n\r");
+                                }
+                                else
+                                {
+                                    std::string value = pRemoteCharacteristic->readValue();
+                                    LOG_LOW("Read value: ", value, "\n\r");
+                                    caller->dev.InsertValue(const_cast<Bluetooth::Characteristic*>(&characteristic), value);
+                                    caller->InsertStatus(Status::VALUE_READ);
+                                }
+                            }
+                            
+                        }
+                    }
+                    caller->client->disconnect();
+                }
+                else
+                {
+                    LOG_MEDIUM("Client not connected\n\r");
+                    caller->InsertStatus(Status::NOT_CONNECTED);
+                }
+                state = EXIT;
+            }
+            break;
+
+            case EXIT:
+            {
+                if (!caller->radioGuard.Release(Utils::Protocol::BLUETOOTH))
+                {
+                    LOG_HIGH("Couldn't acquire bluetooth radio for ReadAll class.\n\r");
+                }
+                state = IDLE;
+            }
+            break;
+
+            default:
+            break;
         }
-        break;
     }
-    vTaskSuspend(NULL);
-}
-
+} 
 
 
 ReadAll::~ReadAll()

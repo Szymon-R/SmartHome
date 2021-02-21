@@ -5,6 +5,7 @@
 #include <memory>
 #include "../Utils/Utils.hpp"
 #include "../Utils/Logger.hpp"
+#include "../Utils/RadioGuard.hpp"
 #include <BLEDevice.h>
 
 NAMESPACE_START(Bluetooth)
@@ -43,6 +44,7 @@ class Scanner
 
     private:
         bool scanReady = true;
+        Utils::RadioGuard radioGuard;
         std::vector<BLEAdvertisedDevice> devices;
         BLEScan* pBLEScan = BLEDevice::getScan();
         ScanCallback defaultCallback{devices};

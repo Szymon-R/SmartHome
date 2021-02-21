@@ -90,8 +90,12 @@ void HttpHandler::Run(void * ownedObject)
 
             case INIT:
             {
-                if (caller->radioGuard.Acquire(Utils::Protocol::BLUETOOTH, 3000))
+                if (caller->radioGuard.Acquire(Utils::Protocol::WIFI, 3000))
                 {
+                    while(1)
+                    {
+                        vTaskDelay(100);
+                    }
                     WiFi.begin(SSID, PASSWORD);  
                     caller->timer.Start(caller->networkTimeout);
                     while(WiFi.status() != WL_CONNECTED) 
@@ -140,8 +144,12 @@ void HttpHandler::Run(void * ownedObject)
 
             case EXIT:
             {
-                caller->radioGuard.Release(Utils::Protocol::BLUETOOTH, 3000);
+                caller->radioGuard.Release(Utils::Protocol::WIFI, 3000);
                 state = IDLE;
+                while(1)
+                {
+                    vTaskDelay(1000);
+                }
             }
             break;
 

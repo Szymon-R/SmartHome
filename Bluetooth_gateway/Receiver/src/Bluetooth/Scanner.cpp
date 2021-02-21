@@ -9,9 +9,13 @@ Scanner::Scanner()
 
 bool Scanner::Scan(const ScanConfig& config)
 {
-    if (!BLEDevice::getInitialized())
+    if (!this->radioGuard.Acquire(Utils::Protocol::BLUETOOTH))
     {
-        BLEDevice::init("");
+        return false;
+    }
+    while(1)
+    {
+        ;
     }
     this->scanReady = false;
     this->devices.clear();
@@ -28,10 +32,7 @@ bool Scanner::Scan(const ScanConfig& config)
     pBLEScan->setActiveScan(config.activeScan);
     pBLEScan->start(config.scanTime, config.extended);
     this->scanReady = true;
-    if (BLEDevice::getInitialized())
-    {
-        BLEDevice::deinit(false);
-    }
+    this->radioGuard.Release(Utils::Protocol::BLUETOOTH);
     return true;
 }
 
