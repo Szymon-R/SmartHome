@@ -21,7 +21,10 @@ Element::operator std::string() const
 {
     if (this->type == DATA_TYPE::INT)
     {
-        return std::to_string(this->intVal);
+        char buffer[12];
+        std::sprintf(buffer, "%d", this->intVal);
+        std::string str = buffer;
+        return str;
     }
     else if (this->type == DATA_TYPE::STRING)
     {

@@ -13,10 +13,6 @@ bool Scanner::Scan(const ScanConfig& config)
     {
         return false;
     }
-    while(1)
-    {
-        ;
-    }
     this->scanReady = false;
     this->devices.clear();
     if (this->userCallback)

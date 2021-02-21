@@ -5,9 +5,11 @@
 #include "driver/uart.h"
 #include "driver/uart_select.h"
 #include "freertos/queue.h"
+#include "freertos/semphr.h"
 #include <type_traits>
 #include <string>
 #include <sstream>
+#include <cstdio>
 
 NAMESPACE_START(Utils)
 
@@ -50,6 +52,7 @@ class Logger
         class Uart0
         {
             public:
+                Uart0();
                 uart_config_t uartConfig = 
                 {
                     .baud_rate = 115200,
@@ -70,6 +73,7 @@ class Logger
                 void Init();
 
             private:
+                SemaphoreHandle_t mutex = nullptr;
                 static constexpr size_t BUFFER_SIZE = 2 * 1024;
                 QueueHandle_t uartQueue;
                 bool initialized = false;                
@@ -83,9 +87,9 @@ class Logger
             typename std::enable_if_t<std::is_integral_v<typename std::remove_reference_t<T>>, bool> = false>
         bool TransmitImpl(T&& arg)
         {
-            std::stringstream s;
-            s << arg;
-            return TransmitImpl(s.str());
+            char buffer[12];
+            std::sprintf(buffer, "%d", arg);
+            TransmitImpl(buffer);
         }
         // strings
         template<typename T,
@@ -100,9 +104,9 @@ class Logger
             typename std::enable_if_t<std::is_floating_point_v<typename std::remove_reference_t<T>>, bool> = false>
         bool TransmitImpl(T&& arg)
         {
-            std::stringstream s;
-            s << arg;
-            return TransmitImpl(s.str());
+            char buffer[12];
+            std::sprintf(buffer, "%f", arg);
+            return TransmitImpl(buffer);
         }
 
         // const char*

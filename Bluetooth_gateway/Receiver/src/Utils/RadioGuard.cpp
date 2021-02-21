@@ -55,18 +55,16 @@ RadioGuard::RadioSynchro::RadioSynchro()
 
 bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
 {
-  //  LOG_LOW("For: ", static_cast<int>(p), "\n\r");
     bool out = false;
-   /* if (xSemaphoreTake(this->mutex, 100) == pdTRUE)
+    if (xSemaphoreTake(this->mutex, 100) == pdTRUE)
     {
-        LOG_LOW("Mutex taken\n\r");
         if (p == Protocol::BLUETOOTH)
         {
             if (this->wifiAgents == 0)
             {
                 if (bluetoothAgents++ == 0)
                 {
-                    //BLEDevice::init("");
+                    BLEDevice::init("");
                 }
                 out = true;
             }
@@ -77,20 +75,19 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
             {
                 if (wifiAgents++ == 0)
                 {
-                   // WiFi.enableSTA(true);
+                    WiFi.enableSTA(true);
                 }
                 out = true;
             }
         }
         xSemaphoreGive(this->mutex);
-    }*/
-    LOG_LOW("Result: ", out, "\n\r");
+    }
     return out;  
 }
 
 bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
 {
-    LOG_LOW("Release protocol for: ", static_cast<int>(p), "\n\r");
+   // LOG_LOW("Release protocol for: ", static_cast<int>(p), "\n\r");
     bool out = false;
     if (xSemaphoreTake(this->mutex, 100) == pdTRUE)
     {
@@ -103,7 +100,7 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             }
             else if (bluetoothAgents == 0)
             {
-                //BLEDevice::deinit(false);
+                BLEDevice::deinit(false);
             }
             out = true;
         }
@@ -116,13 +113,13 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             }
             else if (wifiAgents == 0)
             {
-               // WiFi.enableSTA(false);
+                WiFi.enableSTA(false);
             }
             out = true;
         }
         xSemaphoreGive(this->mutex);
     }
-    LOG_LOW("Result: ", out, "\n\r");
+  //  LOG_LOW("Result: ", out, "\n\r");
     return out;  
 }
 

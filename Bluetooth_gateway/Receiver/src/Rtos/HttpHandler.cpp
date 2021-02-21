@@ -92,10 +92,6 @@ void HttpHandler::Run(void * ownedObject)
             {
                 if (caller->radioGuard.Acquire(Utils::Protocol::WIFI, 3000))
                 {
-                    while(1)
-                    {
-                        vTaskDelay(100);
-                    }
                     WiFi.begin(SSID, PASSWORD);  
                     caller->timer.Start(caller->networkTimeout);
                     while(WiFi.status() != WL_CONNECTED) 

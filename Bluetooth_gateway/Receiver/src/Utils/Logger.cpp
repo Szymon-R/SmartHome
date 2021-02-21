@@ -24,6 +24,11 @@ Logger::Logger()
     ;
 }
 
+Logger::Uart0::Uart0()
+{
+    this->mutex = xSemaphoreCreateMutex();
+}
+
 bool Logger::Transmit()
 {
     ;
@@ -36,5 +41,6 @@ void Logger::Initialize()
 
 int Logger::Uart0::Transmit(const char* src, size_t size)
 {
-    return uart_write_bytes(uart_port_t::UART_NUM_0, src, size);
+    int var = uart_write_bytes(uart_port_t::UART_NUM_0, src, size);
+    return var;
 }

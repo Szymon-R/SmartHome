@@ -45,8 +45,6 @@ void loop()
     LOG_LOW("Starting scan\r\n");
     httpHandler.Execute();
     reader.Scan();
-    while(1)
-    {vTaskDelay(500);}
     while (!reader.IsScanReady()); 
     LOG_LOW("Scan completed\r\n");
     std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();

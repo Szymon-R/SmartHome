@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdio>
 #include "../Utils/Utils.hpp"
 
 NAMESPACE_START(Network)
