@@ -43,7 +43,7 @@ void loop()
 
    //httpHandler.~HttpHandler();
     LOG_LOW("Starting scan\r\n");
-    httpHandler.Execute();
+   // httpHandler.Execute();
     reader.Scan();
     while (!reader.IsScanReady()); 
     LOG_LOW("Scan completed\r\n");

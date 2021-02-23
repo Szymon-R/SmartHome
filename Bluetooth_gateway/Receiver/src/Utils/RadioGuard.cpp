@@ -64,6 +64,7 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
             {
                 if (bluetoothAgents++ == 0)
                 {
+                    LOG_HIGH("Bluetooth init\n\r");
                     BLEDevice::init("");
                 }
                 out = true;
@@ -87,7 +88,6 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
 
 bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
 {
-   // LOG_LOW("Release protocol for: ", static_cast<int>(p), "\n\r");
     bool out = false;
     if (xSemaphoreTake(this->mutex, 100) == pdTRUE)
     {
@@ -100,6 +100,7 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             }
             else if (bluetoothAgents == 0)
             {
+                LOG_HIGH("Bluetooth deinit\n\r");
                 BLEDevice::deinit(false);
             }
             out = true;
@@ -119,7 +120,6 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
         }
         xSemaphoreGive(this->mutex);
     }
-  //  LOG_LOW("Result: ", out, "\n\r");
     return out;  
 }
 

@@ -108,12 +108,12 @@ void ReadAll::Run(void* ownedObject)
     static constexpr int INIT = 1;
     static constexpr int RUN = 2;
     static constexpr int EXIT = 3;
-
+    LOG_HIGH("Starting task.\n\r");
     ReadAll* caller = reinterpret_cast<ReadAll*>(ownedObject);
     int state = INIT;
     while (1)
     {
-
+        LOG_HIGH("State: ", state, "\n\r");
         switch (state)
         {
             case IDLE:
@@ -132,6 +132,7 @@ void ReadAll::Run(void* ownedObject)
                 else
                 {
                     state = RUN;
+                    LOG_HIGH("Next is run.\n\r");
                     caller->client = BLEDevice::createClient();
                     if (!caller->client)
                     {
@@ -145,14 +146,16 @@ void ReadAll::Run(void* ownedObject)
 
             case RUN:
             {
+                LOG_HIGH("trying to connect.\n\r");
                 caller->client->connect(&caller->scannedDev);
-                vTaskDelay(500);
+                LOG_HIGH("In run.\n\r");
                 if (caller->client->isConnected())
                 {
                     LOG_LOW("Client connected\n\r");
                     const auto& services = caller->dev.GetServices();
                     for (auto& service : services)
                     {
+                        LOG_LOW("Service: ", service.serviceCode.c_str(), " \n\r");
                         BLERemoteService* pRemoteService = caller->client->getService(service.serviceCode.c_str());
                         if (pRemoteService == nullptr)
                         {
