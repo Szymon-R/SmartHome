@@ -32,13 +32,12 @@ class Task
 {
     public:
         Task();
-        virtual void Execute(const int priority = 3, const int stackSize = 100000) = 0;
+        virtual void Execute(const int priority = 3, const int stackSize = 1000) = 0;
         Status GetLastStatus();
         virtual ~Task();
         QueueHandle_t statusQueue;
         
     protected:
-        Utils::RadioGuard radioGuard;
         static constexpr int QUEUE_SIZE = 10;
         Status lastStatus;
         void InsertStatus(Status status);

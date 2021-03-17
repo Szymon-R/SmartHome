@@ -28,6 +28,7 @@ bool Scanner::Scan(const ScanConfig& config)
     pBLEScan->setActiveScan(config.activeScan);
     pBLEScan->start(config.scanTime, config.extended);
     this->scanReady = true;
+    LOG_LOW("Scan release\n\r");
     this->radioGuard.Release(Utils::Protocol::BLUETOOTH);
     return true;
 }

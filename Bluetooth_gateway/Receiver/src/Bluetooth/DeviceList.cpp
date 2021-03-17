@@ -6,7 +6,7 @@ using namespace Bluetooth;
 
 Device Devices::temperatureSensor1
 {
-    "Temperature Sensor 1",
+    "Long name works now",
     {
     Service
         {"Service1",

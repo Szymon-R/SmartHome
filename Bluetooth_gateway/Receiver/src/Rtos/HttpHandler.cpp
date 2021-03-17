@@ -15,16 +15,18 @@ HttpHandler::HttpHandler(std::string serverName, unsigned int networkTimeout, un
 
 void HttpHandler::Execute(const int priority, const int stackSize)
 {
-        if (xTaskCreate(HttpHandler::Run,
-                    "HttpHandler",
-                    stackSize,
-                    (void*)this,
-                    priority,
-                    this->taskHandle
-                    ) != pdPASS )
+    int result = xTaskCreate(HttpHandler::Run,
+                "HttpHandler",
+                stackSize,
+                (void*)this,
+                priority,
+                this->taskHandle
+                );
+    if (result != pdPASS)
     {
-        LOG_HIGH("Couldn't create task: HttpHandler\r\n");
+        LOG_HIGH("Couldn't create task: HttpHandler. Reason: ",result,"\r\n");
     }
+    
 }
 
 void HttpHandler::InsertData(const std::string& data)
@@ -74,7 +76,6 @@ void HttpHandler::Run(void * ownedObject)
     int state = INIT;
     while (1)
     {
-
         switch (state)
         {
             case IDLE:

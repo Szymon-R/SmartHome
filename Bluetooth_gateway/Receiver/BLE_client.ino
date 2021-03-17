@@ -41,18 +41,20 @@ void loop()
     Bluetooth::Scanner reader;
 
 
-   //httpHandler.~HttpHandler();
+    //httpHandler.~HttpHandler();
     LOG_LOW("Starting scan\r\n");
-   // httpHandler.Execute();
+    httpHandler.Execute();
     reader.Scan();
     while (!reader.IsScanReady()); 
     LOG_LOW("Scan completed\r\n");
+    vTaskDelay(3000);
+    
+    
     std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
     BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Bluetooth::Devices::temperatureSensor1.deviceName);
-    Rtos::ReadAll readAll{Bluetooth::Devices::temperatureSensor1, *scannedDevice};
-    
     if (scannedDevice)
     {
+        Rtos::ReadAll readAll{Bluetooth::Devices::temperatureSensor1, *scannedDevice};
         LOG_LOW("Device: ", Bluetooth::Devices::temperatureSensor1.deviceName, " found\n\r");
         readAll.Execute();
     }

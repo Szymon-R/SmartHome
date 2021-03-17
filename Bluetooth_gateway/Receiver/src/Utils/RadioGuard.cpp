@@ -1,4 +1,5 @@
 #include "RadioGuard.hpp"
+#include "esp_wifi.h"
 
 using namespace Utils;
 
@@ -58,6 +59,7 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
     bool out = false;
     if (xSemaphoreTake(this->mutex, 100) == pdTRUE)
     {
+        //LOG_HIGH("Mutex taken\n\r");
         if (p == Protocol::BLUETOOTH)
         {
             if (this->wifiAgents == 0)
@@ -76,12 +78,15 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
             {
                 if (wifiAgents++ == 0)
                 {
+                    LOG_HIGH("Wifi init\n\r");
                     WiFi.enableSTA(true);
                 }
                 out = true;
             }
         }
+        //LOG_HIGH("Mutex released\n\r");
         xSemaphoreGive(this->mutex);
+        
     }
     return out;  
 }
@@ -114,10 +119,13 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             }
             else if (wifiAgents == 0)
             {
-                WiFi.enableSTA(false);
+                LOG_HIGH("Wifi deinit\n\r");
+                esp_wifi_stop();
+                esp_wifi_deinit();
             }
             out = true;
         }
+        vTaskDelay(200);
         xSemaphoreGive(this->mutex);
     }
     return out;  

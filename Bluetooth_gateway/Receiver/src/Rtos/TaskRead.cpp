@@ -111,9 +111,11 @@ void ReadAll::Run(void* ownedObject)
     LOG_HIGH("Starting task.\n\r");
     ReadAll* caller = reinterpret_cast<ReadAll*>(ownedObject);
     int state = INIT;
+    int prevState = RUN;
     while (1)
     {
-        LOG_HIGH("State: ", state, "\n\r");
+        if (state != prevState)
+            LOG_HIGH("State: ", state, "\n\r");
         switch (state)
         {
             case IDLE:
@@ -206,6 +208,7 @@ void ReadAll::Run(void* ownedObject)
             default:
             break;
         }
+        prevState = state;
     }
 } 
 
