@@ -47,9 +47,7 @@ void loop()
     reader.Scan();
     while (!reader.IsScanReady()); 
     LOG_LOW("Scan completed\r\n");
-    vTaskDelay(3000);
-    
-    
+
     std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
     BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Bluetooth::Devices::temperatureSensor1.deviceName);
     if (scannedDevice)
@@ -58,10 +56,21 @@ void loop()
         LOG_LOW("Device: ", Bluetooth::Devices::temperatureSensor1.deviceName, " found\n\r");
         readAll.Execute();
     }
-/*
-   while(1)
+    
+    auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
+    auto parsed = Network::JsonBuilder::Parse(dev);
+
+
+    while(1)
+    {
+        httpHandler.InsertData(parsed);
+        vTaskDelay(5000);
+    }
+
+}
+  /* while(1)
    {
-        if (readAll.GetLastStatus() == Rtos::Status::VALUE_READ)
+       if (readAll.GetLastStatus() == Rtos::Status::VALUE_READ)
         {
             LOG_LOW("Status received\r\n");
             if (httpHandler.GetLastStatus() != Rtos::Status::CONNECTED)
@@ -72,9 +81,4 @@ void loop()
             }
         }
         vTaskDelay(1000);
-   }
-   */
-while(1)
-  {vTaskDelay(500);}
-
-}
+   }*/

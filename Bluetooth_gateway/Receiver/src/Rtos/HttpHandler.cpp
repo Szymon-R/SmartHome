@@ -31,14 +31,23 @@ void HttpHandler::Execute(const int priority, const int stackSize)
 
 void HttpHandler::InsertData(const std::string& data)
 {
-    std::string *data2  = new std::string;
-    *data2 = data;
-    xQueueSend(this->statusQueue, (void*)&data2, 0); 
+    std::string *data2  = new std::string(data);
+    xQueueSend(this->inQueue, (void*)&data2, 0); 
+}
+
+
+bool HttpHandler::HasReceivedData()
+{
+    return uxQueueMessagesWaiting(this->inQueue) != 0;
 }
 
 std::string HttpHandler::GetData()
 {
-    return "";
+    std::string* buffer = nullptr;
+    xQueueReceive(this->inQueue, &buffer, 0);
+    std::string out = *buffer;
+    delete buffer;
+    return out;
 }
 
 HttpHandler::~HttpHandler()
@@ -47,7 +56,7 @@ HttpHandler::~HttpHandler()
     while (uxQueueSpacesAvailable(this->inQueue) != HttpHandler::QUEUE_SIZE)
     {
         LOG_LOW("Deleting item\r\n");
-        int* buffer = nullptr;
+        std::string* buffer = nullptr;
         xQueueReceive(this->inQueue, &buffer, 0);
         if (!buffer)
         {
@@ -84,7 +93,19 @@ void HttpHandler::Run(void * ownedObject)
                 if (caller->timer.IsExpired())
                 {
                     caller->timer.Stop();
-                    state = INIT;
+                    if (caller->HasReceivedData())
+                    {
+                        state = INIT;
+                    }
+                    else
+                    {
+                        LOG_MEDIUM("Didn't receive data\n\r");
+                    }
+
+                }
+                else
+                {
+                    vTaskDelay(20);
                 }
             }
             break;
@@ -131,7 +152,8 @@ void HttpHandler::Run(void * ownedObject)
                 
                 // If you need an HTTP request with a content type: application/json, use the following:
                 http.addHeader("Content-Type", "application/json");
-                int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
+               // int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
+                int httpResponseCode = http.POST(caller->GetData().c_str());
                 LOG_MEDIUM("HTTP Response code: ", httpResponseCode, "\n\r");
                     
                 http.end();
@@ -143,10 +165,6 @@ void HttpHandler::Run(void * ownedObject)
             {
                 caller->radioGuard.Release(Utils::Protocol::WIFI, 3000);
                 state = IDLE;
-                while(1)
-                {
-                    vTaskDelay(1000);
-                }
             }
             break;
 

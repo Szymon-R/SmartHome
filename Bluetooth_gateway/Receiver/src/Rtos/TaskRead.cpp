@@ -201,6 +201,7 @@ void ReadAll::Run(void* ownedObject)
                 {
                     LOG_HIGH("Couldn't acquire bluetooth radio for ReadAll class.\n\r");
                 }
+                vTaskSuspend(NULL);
                 state = IDLE;
             }
             break;
