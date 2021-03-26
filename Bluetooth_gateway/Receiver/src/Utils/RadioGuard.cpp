@@ -79,8 +79,8 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
                 if (wifiAgents++ == 0)
                 {
                     LOG_HIGH("Wifi init\n\r");
-                   // wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-                  //  esp_wifi_init(&cfg);
+                    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+                    esp_wifi_init(&cfg);
                     WiFi.mode(WIFI_MODE_STA);
                 }
                 out = true;
@@ -123,7 +123,7 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
                 LOG_HIGH("Wifi deinit\n\r");
                 WiFi.mode(WIFI_OFF);
                 esp_wifi_stop();
-                //esp_wifi_deinit();
+                esp_wifi_deinit();
             }
             out = true;
         }

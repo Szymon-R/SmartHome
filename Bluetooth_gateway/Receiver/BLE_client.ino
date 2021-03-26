@@ -39,30 +39,42 @@ void loop()
    LOG_HIGH("Starting program\n\r");
 
     Bluetooth::Scanner reader;
-
-
-    //httpHandler.~HttpHandler();
-    LOG_LOW("Starting scan\r\n");
     httpHandler.Execute();
-    reader.Scan();
-    while (!reader.IsScanReady()); 
-    LOG_LOW("Scan completed\r\n");
-
-    std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
-    BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Bluetooth::Devices::temperatureSensor1.deviceName);
-    if (scannedDevice)
-    {
-        Rtos::ReadAll readAll{Bluetooth::Devices::temperatureSensor1, *scannedDevice};
-        LOG_LOW("Device: ", Bluetooth::Devices::temperatureSensor1.deviceName, " found\n\r");
-        readAll.Execute();
-    }
-    
-    auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
-    auto parsed = Network::JsonBuilder::Parse(dev);
-
-
     while(1)
     {
+        //httpHandler.~HttpHandler();
+        LOG_LOW("Starting scan\r\n");
+
+        reader.Scan();
+        while (!reader.IsScanReady()); 
+        LOG_LOW("Scan completed\r\n");
+
+        std::vector<BLEAdvertisedDevice> scannedDevices = reader.GetDetectedDevices();
+        BLEAdvertisedDevice* scannedDevice = reader.GetDeviceByName(scannedDevices, Bluetooth::Devices::temperatureSensor1.deviceName);
+        if (scannedDevice)
+        {
+            Rtos::ReadAll readAll{Bluetooth::Devices::temperatureSensor1, *scannedDevice};
+            LOG_LOW("Device: ", Bluetooth::Devices::temperatureSensor1.deviceName, " found\n\r");
+            readAll.Execute();
+            while(1)
+            {
+                if (readAll.GetLastStatus() == Rtos::Status::VALUE_READ)
+                {
+                    LOG_LOW("Status received\r\n");
+                    auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
+                    auto parsed = Network::JsonBuilder::Parse(dev);
+                    LOG_HIGH(parsed, "\n\r");
+                    httpHandler.InsertData(parsed);
+                }
+                vTaskDelay(1000);
+                break;
+            }
+        }
+
+  
+
+        auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
+        auto parsed = Network::JsonBuilder::Parse(dev);
         httpHandler.InsertData(parsed);
         vTaskDelay(5000);
     }
