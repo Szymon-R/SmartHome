@@ -70,13 +70,6 @@ void loop()
                 break;
             }
         }
-
-  
-
-        auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
-        auto parsed = Network::JsonBuilder::Parse(dev);
-        httpHandler.InsertData(parsed);
-        vTaskDelay(5000);
     }
 
 }

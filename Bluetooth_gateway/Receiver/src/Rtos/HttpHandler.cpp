@@ -45,8 +45,12 @@ std::string HttpHandler::GetData()
 {
     std::string* buffer = nullptr;
     xQueueReceive(this->inQueue, &buffer, 0);
-    std::string out = *buffer;
-    delete buffer;
+    std::string out = "";
+    if (buffer != nullptr)
+    {
+        out = *buffer;
+        delete buffer;
+    }
     return out;
 }
 
@@ -101,7 +105,6 @@ void HttpHandler::Run(void * ownedObject)
                     {
                         LOG_MEDIUM("Didn't receive data\n\r");
                     }
-
                 }
                 else
                 {
