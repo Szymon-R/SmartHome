@@ -59,7 +59,6 @@ HttpHandler::~HttpHandler()
     LOG_LOW("Handle destructor called\r\n");
     while (uxQueueSpacesAvailable(this->inQueue) != HttpHandler::QUEUE_SIZE)
     {
-        LOG_LOW("Deleting item\r\n");
         std::string* buffer = nullptr;
         xQueueReceive(this->inQueue, &buffer, 0);
         if (!buffer)
@@ -69,7 +68,6 @@ HttpHandler::~HttpHandler()
         else
         {
             delete buffer;
-            LOG_LOW("Item deleted\r\n");
         }
     }
     if (this->taskHandle)
@@ -99,6 +97,7 @@ void HttpHandler::Run(void * ownedObject)
                     caller->timer.Stop();
                     if (caller->HasReceivedData())
                     {
+                        LOG_MEDIUM("Http handler received json data\n\r");
                         state = INIT;
                     }
                     else

@@ -83,7 +83,7 @@ void ReadOnce::Run(void* ownedObject)
 
 ReadOnce::~ReadOnce()
 {
-
+    LOG_HIGH("Read once destrucotr called\r\n");
 }
 
 
@@ -108,14 +108,13 @@ void ReadAll::Run(void* ownedObject)
     static constexpr int INIT = 1;
     static constexpr int RUN = 2;
     static constexpr int EXIT = 3;
-    LOG_HIGH("Starting task.\n\r");
     ReadAll* caller = reinterpret_cast<ReadAll*>(ownedObject);
     int state = INIT;
     int prevState = RUN;
     while (1)
     {
         if (state != prevState)
-            LOG_HIGH("State: ", state, "\n\r");
+        LOG_HIGH("State: ", state, "\n\r");
         switch (state)
         {
             case IDLE:
@@ -134,7 +133,6 @@ void ReadAll::Run(void* ownedObject)
                 else
                 {
                     state = RUN;
-                    LOG_HIGH("Next is run.\n\r");
                     caller->client = BLEDevice::createClient();
                     if (!caller->client)
                     {
@@ -148,16 +146,14 @@ void ReadAll::Run(void* ownedObject)
 
             case RUN:
             {
-                LOG_HIGH("trying to connect.\n\r");
                 caller->client->connect(&caller->scannedDev);
-                LOG_HIGH("In run.\n\r");
                 if (caller->client->isConnected())
                 {
                     LOG_LOW("Client connected\n\r");
                     const auto& services = caller->dev.GetServices();
                     for (auto& service : services)
                     {
-                        LOG_LOW("Service: ", service.serviceCode.c_str(), " \n\r");
+                        //LOG_LOW("Service: ", service.serviceCode.c_str(), " \n\r");
                         BLERemoteService* pRemoteService = caller->client->getService(service.serviceCode.c_str());
                         if (pRemoteService == nullptr)
                         {
@@ -216,24 +212,5 @@ void ReadAll::Run(void* ownedObject)
 
 ReadAll::~ReadAll()
 {
-    LOG_LOW("There are: ", ReadAll::QUEUE_SIZE - uxQueueSpacesAvailable(this->statusQueue), " elements on queue\r\n");
-    while (uxQueueSpacesAvailable(this->statusQueue) != ReadAll::QUEUE_SIZE)
-    {
-        LOG_LOW("Deleting item\r\n");
-        int* buffer = nullptr;
-        xQueueReceive(this->statusQueue, &buffer, 0);
-        if (!buffer)
-        {
-            LOG_HIGH("Empty element received from queue\r\n");
-        }
-        else
-        {
-            delete buffer;
-            LOG_LOW("Item deleted\r\n");
-        }
-    }
-    if (this->taskHandle)
-    {
-        vTaskDelete(this->taskHandle);
-    }
+    LOG_LOW("Read all destructor called\n\r");
 }

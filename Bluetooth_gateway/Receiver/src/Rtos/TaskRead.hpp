@@ -59,16 +59,6 @@ class ReadAll : public Read
         static void Run(void * ownedObject);
 };
 
-class MyClientCallback : public BLEClientCallbacks {
-  void onConnect(BLEClient* pclient) {
-  }
-
-  void onDisconnect(BLEClient* pclient) {
-
-  }
-};
-
-
 NAMESPACE_END
 
 # endif

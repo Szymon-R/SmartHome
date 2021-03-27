@@ -40,6 +40,8 @@ void loop()
 
     Bluetooth::Scanner reader;
     httpHandler.Execute();
+    
+
     while(1)
     {
         //httpHandler.~HttpHandler();
@@ -54,36 +56,34 @@ void loop()
         if (scannedDevice)
         {
             Rtos::ReadAll readAll{Bluetooth::Devices::temperatureSensor1, *scannedDevice};
-            LOG_LOW("Device: ", Bluetooth::Devices::temperatureSensor1.deviceName, " found\n\r");
+            LOG_LOW("Device found: ", Bluetooth::Devices::temperatureSensor1.deviceName, "\n\r");
             readAll.Execute();
             while(1)
             {
-                if (readAll.GetLastStatus() == Rtos::Status::VALUE_READ)
+                auto status = readAll.GetLastStatus();
+                if (status == Rtos::Status::VALUE_READ)
                 {
-                    LOG_LOW("Status received\r\n");
+                    LOG_LOW("Status: value read!\r\n");
                     auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
                     auto parsed = Network::JsonBuilder::Parse(dev);
                     LOG_HIGH(parsed, "\n\r");
                     httpHandler.InsertData(parsed);
+                    break;
                 }
-                vTaskDelay(1000);
-                break;
+                else if (status == Rtos::Status::TIMEOUT)
+                {
+                    LOG_LOW("Status: timeout!\r\n");
+                    auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
+                    auto parsed = Network::JsonBuilder::Parse(dev);
+                    httpHandler.InsertData(parsed);
+                    break;
+                }
             }
+        }
+        else
+        {
+            httpHandler.InsertData("0");
         }
     }
 
 }
-  /* while(1)
-   {
-       if (readAll.GetLastStatus() == Rtos::Status::VALUE_READ)
-        {
-            LOG_LOW("Status received\r\n");
-            if (httpHandler.GetLastStatus() != Rtos::Status::CONNECTED)
-            {
-                auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
-                auto parsed = Network::JsonBuilder::Parse(dev);
-                LOG_HIGH(parsed, "\n\r");
-            }
-        }
-        vTaskDelay(1000);
-   }*/

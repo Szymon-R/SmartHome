@@ -50,10 +50,10 @@ bool Scanner::IsScanReady()
 BLEAdvertisedDevice* Scanner::GetDeviceByName(std::vector<BLEAdvertisedDevice>& devices, const std::string& name)
 {
     BLEAdvertisedDevice* out = nullptr;
-    LOG_LOW("Devices found: \n\r");
+   // LOG_LOW("Devices found: \n\r");
     for (auto& device : devices)
     {
-        LOG_LOW("\t- ", device.getName(), "\n\r");
+      //  LOG_LOW("\t- ", device.getName(), "\n\r");
         if (device.getName() == name)
         {
             out = const_cast<BLEAdvertisedDevice*>(&device);
