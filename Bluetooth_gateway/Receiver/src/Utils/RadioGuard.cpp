@@ -108,6 +108,7 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             {
                 LOG_HIGH("Bluetooth deinit\n\r");
                 BLEDevice::deinit(false);
+                LOG_HIGH("Bluetooth deinit2\n\r");
             }
             out = true;
         }

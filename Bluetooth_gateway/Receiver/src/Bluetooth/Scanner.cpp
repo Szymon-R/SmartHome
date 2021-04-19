@@ -25,10 +25,11 @@ bool Scanner::Scan(const ScanConfig& config)
     }
     pBLEScan->setInterval(config.interval);
     pBLEScan->setWindow(config.window);
-    pBLEScan->setActiveScan(config.activeScan);
     pBLEScan->start(config.scanTime, config.extended);
+    pBLEScan->setActiveScan(config.activeScan);
     this->scanReady = true;
     LOG_LOW("Scan release\n\r");
+
     this->radioGuard.Release(Utils::Protocol::BLUETOOTH);
     return true;
 }
@@ -53,7 +54,7 @@ BLEAdvertisedDevice* Scanner::GetDeviceByName(std::vector<BLEAdvertisedDevice>& 
    // LOG_LOW("Devices found: \n\r");
     for (auto& device : devices)
     {
-      //  LOG_LOW("\t- ", device.getName(), "\n\r");
+        //LOG_LOW("\t- ", device.getName(), "\n\r");
         if (device.getName() == name)
         {
             out = const_cast<BLEAdvertisedDevice*>(&device);
@@ -76,7 +77,30 @@ Scanner::ScanCallback::ScanCallback(std::vector<BLEAdvertisedDevice>& devices) :
 
 void Scanner::ScanCallback::onResult(BLEAdvertisedDevice advertisedDevice)
 {
-    this->devices.emplace_back(advertisedDevice);
+
+    auto IsDeviceValid = [&]()
+    {
+        if (advertisedDevice.getName() == "")
+        {
+            return false;
+        }
+        else
+        {
+            auto iter = std::find_if(this->devices.begin(), this->devices.end(), [&](BLEAdvertisedDevice& device) -> bool
+            {
+                return device.getName() == advertisedDevice.getName();
+            });
+            if (iter == this->devices.end())
+            {
+                return true;
+            }
+        }
+    };
+    if (IsDeviceValid())
+    {
+        LOG_LOW("Adding device: ",advertisedDevice.getName(), "\n\r");
+        this->devices.emplace_back(advertisedDevice);
+    }
 }
 
 

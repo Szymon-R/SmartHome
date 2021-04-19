@@ -4,21 +4,25 @@
 
 using namespace Bluetooth;
 
-Device Devices::temperatureSensor1
-{
-    "Long name works now",
+std::vector<Device> Devices::devices
+(
     {
-    Service
-        {"Service1",
-         "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+        Device
+        {
+            "Long name works now",
             {
-            Characteristic
-                {"Characteristic1",
-                 "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+            Service
+                {"Service1",
+                "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+                    {
+                    Characteristic
+                        {"Characteristic1",
+                        "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+                        }
+                    }
                 }
             }
         }
     }
-};
-
+) ;
 

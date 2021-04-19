@@ -9,9 +9,9 @@ NAMESPACE_START(Bluetooth);
 
 class Devices
 {
+
     public:
-        static Device temperatureSensor1;
-        static Device preassureSensor;
+        static std::vector<Device> devices;
 };
 
 NAMESPACE_END

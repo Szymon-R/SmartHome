@@ -20,6 +20,7 @@
 #include "src/Bluetooth/Scanner.hpp"
 #include "src/Bluetooth/DeviceList.hpp"
 #include "src/Rtos/TaskRead.hpp"
+#include "src/Rtos/Scheduler.hpp"
 #include "src/Rtos/HttpHandler.hpp"
 #include "src/Network/Json.hpp"
 #include "src/Drivers/Timer.hpp"
@@ -34,15 +35,24 @@ void setup()
 
 void loop() 
 {  
-    
+  /*  Rtos::Scheduler scheduler;
+    scheduler.Execute(1, 5000);
+    while(true)
+    {
+        vTaskDelay(1000);
+        LOG_LOW(".");
+    }*/
    Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
    LOG_HIGH("Starting program\n\r");
 
     Bluetooth::Scanner reader;
-    httpHandler.Execute();
+    reader.Scan();
+    while (!reader.IsScanReady()); 
+    LOG_LOW("Scan completed\r\n");
+   // httpHandler.Execute();
     
 
-    while(1)
+   /* while(1)
     {
         //httpHandler.~HttpHandler();
         LOG_LOW("Starting scan\r\n");
@@ -67,7 +77,7 @@ void loop()
                     auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
                     auto parsed = Network::JsonBuilder::Parse(dev);
                     LOG_HIGH(parsed, "\n\r");
-                    httpHandler.InsertData(parsed);
+                    //httpHandler.InsertData(parsed);
                     break;
                 }
                 else if (status == Rtos::Status::TIMEOUT)
@@ -75,15 +85,25 @@ void loop()
                     LOG_LOW("Status: timeout!\r\n");
                     auto dev = Network::JsonBuilder::Create(Bluetooth::Devices::temperatureSensor1);
                     auto parsed = Network::JsonBuilder::Parse(dev);
-                    httpHandler.InsertData(parsed);
+                    //httpHandler.InsertData(parsed);
+                    break;
+                }
+                else if(status == Rtos::Status::NO_STATUS)
+                {
+
+                }
+                else
+                {
+                    LOG_LOW("Unknown reaction. Status: ",static_cast<int>(status),"\r\n");
                     break;
                 }
             }
         }
         else
         {
-            httpHandler.InsertData("0");
+            LOG_LOW("Device not found\r\n");
+           // httpHandler.InsertData("0");
         }
     }
-
+*/
 }

@@ -7,6 +7,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <BLE2902.h>
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -42,6 +43,7 @@ void setup() {
                                          BLECharacteristic::PROPERTY_READ |
                                          BLECharacteristic::PROPERTY_WRITE
                                        );
+  pCharacteristic-> addDescriptor (new BLE2902 ());
 
   pCharacteristic->setValue("Hello World says Neil");
   pService->start();

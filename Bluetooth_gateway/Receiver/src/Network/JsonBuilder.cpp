@@ -59,6 +59,15 @@ Json JsonBuilder::Create(const Bluetooth::Value& val)
     return Json{"Value", {j1, j2}};
 }
 
+Json JsonBuilder::Create(const std::string& jsonData)
+{
+    std::stringstream stream;
+    static int spacebarCounter = 0;
+    
+    
+
+}
+
 std::string JsonBuilder::Parse(const Json& j)
 {
     std::stringstream stream;
@@ -130,4 +139,10 @@ std::string JsonBuilder::Parse(const std::vector<Element>& elements)
         }
     }
     return stream.str();
+}
+
+std::string JsonBuilder::GetTag(std::string& data)
+{
+    // std::regex reg("^\".\")
+    return "";
 }
