@@ -173,7 +173,8 @@ void ReadAll::Run(void* ownedObject)
                                 {
                                     std::string value = pRemoteCharacteristic->readValue();
                                     LOG_LOW("Read value: ", value, "\n\r");
-                                    caller->dev.InsertValue(const_cast<Bluetooth::Characteristic*>(&characteristic), value);
+                                    characteristic.
+                                    //caller->dev.InsertValue(const_cast<Bluetooth::Characteristic*>(&characteristic), value);
                                     caller->InsertStatus(Status::VALUE_READ);
                                 }
                             }

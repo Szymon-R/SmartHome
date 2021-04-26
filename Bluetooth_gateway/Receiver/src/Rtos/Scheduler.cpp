@@ -3,7 +3,6 @@
 using namespace Rtos;
 
 Scheduler::Scheduler() :
-    httpHandler(HttpHandler{"http://192.168.1.2:1880/update-sensor"}),
     scanner(Bluetooth::Scanner{}),
     bluetoothDevices(Bluetooth::Devices::devices)
 {
@@ -37,7 +36,6 @@ void Scheduler::Execute(const int priority, const int stackSize)
 void Scheduler::Run(void * ownedObject)
 {
     auto& caller = *(static_cast<Scheduler*>(ownedObject));
-    caller.httpHandler.Execute();
 
     while(true)
     {
@@ -67,8 +65,26 @@ void Scheduler::RunBluetoothTasks(std::vector<BLEAdvertisedDevice>& scanned)
         if (it != bluetoothDevices.end())
         {
             LOG_LOW("Device found!\r\n");
-            this->tasks.emplace_back(Rtos::ReadAll{*it, scan});
+            if (!this->IsToBeWritten(*it))
+            {
+                this->tasks.emplace_back(Rtos::ReadAll{*it, scan});
+            }
             tasks.back().Execute();
+        }
+    }
+}
+
+bool Scheduler::IsToBeWritten(Bluetooth::Device& dev)
+{
+    auto all = dev.GetAll();
+    for (auto& pair : all)
+    {
+        for (auto chara : pair.second)
+        {
+            if (chara->GetStatus() == Bluetooth::CharStatus::TO_BE_WRITTEN)
+            {
+                return true;
+            }
         }
     }
 }

@@ -9,6 +9,15 @@
 
 NAMESPACE_START(Bluetooth)
 
+enum class CharStatus
+{
+    TO_BE_READ,
+    TO_BE_WRITTEN,
+    CHAR_PROPERTY_MISMATCH,
+    SUCCESS,
+    TIMEOUT
+};
+
 struct Value
 {
     std::string timeStamp;
@@ -22,40 +31,65 @@ class Characteristic
         Characteristic(const std::string& charName, const std::string& charCode) :
             charName(charName), charCode(charCode)
         {
-            this->InsertValue("1000");
-            this->InsertValue("2000");
+            this->InsertToBeRead("1000");
+            this->InsertToBeRead("2000");
         }
 
         const std::string charName;
         const std::string charCode;
 
-        void InsertValue(const std::string& value)
+        void InsertToBeRead(const std::string& value)
         {
             Value val;
             val.value = value;
             //LOG_LOW("Inserting value: ", val.value, "\n\r");
-            this->values.push_back(val);
+            this->readBuffer.push_back(val);
+        }
+
+        void InsertToBeWritten(const std::string& value)
+        {
+            Value val;
+            val.value = value;
+            //LOG_LOW("Inserting value: ", val.value, "\n\r");
+            this->writeBuffer.push_back(val);
         }
 
         bool GetValue(Value& buffer)
         {
             Value val;
-            if (values.size() > 0)
+            if (readFromDeviceValues.size() > 0)
             {
-                buffer = values.front();
-                values.pop_front();
+                buffer = readFromDeviceValues.front();
+                readFromDeviceValues.pop_front();
                 return true;
             }
             return false;          
         }
 
-        uint32_t ValuesCount() const
+        uint32_t ReadValuesCount() const
         {
-            return this->values.size();
+            return this->readFromDeviceValues.size();
+        }
+
+        void SetStatus(CharStatus status)
+        {
+            this->status = status;
+        }
+
+        CharStatus GetStatus(bool reset = false)
+        {
+            CharStatus temp = this->status;
+            if (reset)
+            {
+                this->status = CharStatus::TO_BE_READ;
+            }
+            return temp;
         }
 
     private:
-        std::list<Value> values;
+        CharStatus status = CharStatus::TO_BE_READ;
+        std::list<Value> readBuffer;
+        std::list<Value> writeBuffer;
 };
 
 
@@ -114,7 +148,7 @@ class Service
         }
 
     private:
-        const std::list<Characteristic> characteritics;
+        std::list<Characteristic> characteritics;
 };
 
 
@@ -148,6 +182,22 @@ class Device
         return this->services;
     }
 
+    std::vector<std::pair<Service*, std::vector<Characteristic*>>> GetAll()
+    {
+        std::vector<std::pair<Service*, std::vector<Characteristic*>>> out;
+        for(auto& serv : services)
+        {
+            auto chars = serv.GetCharacteristics();
+            std::vector<Characteristic*> charas;
+            for (auto& chara : chars)
+            {
+                charas.emplace_back(const_cast<Characteristic*>(&chara));
+            }
+            out.push_back(make_pair(const_cast<Service*>(&serv), charas));
+        }
+        return out;
+    }
+
     Service* operator[](const std::string& name)
     {
         Service* out = nullptr;
@@ -174,7 +224,7 @@ class Device
         return services.size();
     }
     private:
-        const std::list<Service> services;
+        std::list<Service> services;
 };
 
 NAMESPACE_END

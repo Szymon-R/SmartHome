@@ -41,7 +41,7 @@ Json JsonBuilder::Create(Bluetooth::Characteristic& chr)
 {
     Bluetooth::Value val;
     std::vector<Json> values;
-    values.reserve(chr.ValuesCount() + 2);
+    values.reserve(chr.ReadValuesCount() + 2);
     values.push_back(Json{"char_name", chr.charName});
     values.push_back(Json{"char_code", chr.charCode});
     while (chr.GetValue(val))

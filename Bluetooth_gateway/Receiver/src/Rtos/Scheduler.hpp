@@ -29,7 +29,7 @@ public:
 private:
     static void Run(void * ownedObject);
     void RunBluetoothTasks(std::vector<BLEAdvertisedDevice>& scanned);
-    HttpHandler httpHandler;
+    bool IsToBeWritten(Bluetooth::Device& dev);
     Bluetooth::Scanner scanner;
     std::vector<Bluetooth::Device>& bluetoothDevices;
     std::vector<Rtos::Read> tasks;
