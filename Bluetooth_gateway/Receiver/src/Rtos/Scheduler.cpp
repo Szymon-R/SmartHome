@@ -65,26 +65,11 @@ void Scheduler::RunBluetoothTasks(std::vector<BLEAdvertisedDevice>& scanned)
         if (it != bluetoothDevices.end())
         {
             LOG_LOW("Device found!\r\n");
-            if (!this->IsToBeWritten(*it))
+            if (Bluetooth::DeviceUtils::HasReadOnly(*it))
             {
                 this->tasks.emplace_back(Rtos::ReadAll{*it, scan});
             }
             tasks.back().Execute();
-        }
-    }
-}
-
-bool Scheduler::IsToBeWritten(Bluetooth::Device& dev)
-{
-    auto all = dev.GetAll();
-    for (auto& pair : all)
-    {
-        for (auto chara : pair.second)
-        {
-            if (chara->GetStatus() == Bluetooth::CharStatus::TO_BE_WRITTEN)
-            {
-                return true;
-            }
         }
     }
 }

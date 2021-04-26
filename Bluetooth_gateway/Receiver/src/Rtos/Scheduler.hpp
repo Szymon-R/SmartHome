@@ -4,6 +4,7 @@
 #include "../Utils/Utils.hpp"
 #include "../Bluetooth/Device.hpp"
 #include "../Bluetooth/DeviceList.hpp"
+#include "../Bluetooth/DeviceUtils.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Utils/RadioGuard.hpp"
 
@@ -29,7 +30,7 @@ public:
 private:
     static void Run(void * ownedObject);
     void RunBluetoothTasks(std::vector<BLEAdvertisedDevice>& scanned);
-    bool IsToBeWritten(Bluetooth::Device& dev);
+    
     Bluetooth::Scanner scanner;
     std::vector<Bluetooth::Device>& bluetoothDevices;
     std::vector<Rtos::Read> tasks;

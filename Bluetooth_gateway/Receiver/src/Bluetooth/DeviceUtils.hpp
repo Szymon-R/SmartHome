@@ -3,14 +3,19 @@
 
 #include "../Utils/Utils.hpp"
 #include "../Utils/Logger.hpp"
+#include "Device.hpp"
 #include <BLEDevice.h>
 
 NAMESPACE_START(Bluetooth)
 
 class DeviceUtils
 {
-    static BLEAdvertisedDevice* FindDeviceByName(std::vector<BLEAdvertisedDevice>& devices, const std::string& name);
+    public:
+        static BLEAdvertisedDevice* FindDeviceByName(std::vector<BLEAdvertisedDevice>& devices, const std::string& name);
+        static bool HasAnyWrite(Bluetooth::Device& dev);
+        static bool HasReadOnly(Bluetooth::Device& dev);
 };
+
 
 NAMESPACE_END
 

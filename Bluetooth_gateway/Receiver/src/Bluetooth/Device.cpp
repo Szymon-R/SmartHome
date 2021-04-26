@@ -1,70 +1,78 @@
 #include "Device.hpp"
 
+using namespace Bluetooth;
 
-
-class Characteristic
+Characteristic::Characteristic(const std::string& charName, const std::string& charCode) :
+    charName(charName), charCode(charCode)
 {
-    public:
-        Characteristic(const std::string& charName, const std::string& charCode) :
-            charName(charName), charCode(charCode)
+    this->WriteValue("1000", Mode::READ);
+    this->WriteValue("2000", Mode::READ);
+}
+
+void Characteristic::WriteValue(const std::string& value, uint8_t mode)
+{
+    if (mode == Mode::READ)
+    {
+        Value val;
+        val.value = value;
+        //LOG_LOW("Inserting value: ", val.value, "\n\r");
+        this->readBuffer.push_back(val);
+    }
+
+    else if (mode == Mode::WRITE)
+    {
+        Value val;
+        val.value = value;
+        //LOG_LOW("Inserting value: ", val.value, "\n\r");
+        this->writeBuffer.push_back(val);
+    }
+}
+
+bool Characteristic::ReadValue(Value& buffer, uint8_t mode)
+{
+    if (mode == Mode::READ)
+    {
+        if (this->readBuffer.size() > 0)
         {
-            this->InsertToBeRead("1000");
-            this->InsertToBeRead("2000");
+            buffer = this->readBuffer.front();
+            this->readBuffer.pop_front();
+            return true;
         }
-
-        const std::string charName;
-        const std::string charCode;
-
-        void InsertToBeRead(const std::string& value)
+        return false;    
+    }
+    else if (mode == Mode::WRITE)
+    {
+        if (this->writeBuffer.size() > 0)
         {
-            Value val;
-            val.value = value;
-            //LOG_LOW("Inserting value: ", val.value, "\n\r");
-            this->readBuffer.push_back(val);
+            buffer = writeBuffer.front();
+            this->writeBuffer.pop_front();
+            return true;
         }
+        return false;    
+    }
+}
 
-        void InsertToBeWritten(const std::string& value)
-        {
-            Value val;
-            val.value = value;
-            //LOG_LOW("Inserting value: ", val.value, "\n\r");
-            this->writeBuffer.push_back(val);
-        }
+uint32_t Characteristic::ReadValuesCount() const
+{
+    return this->readBuffer.size();
+}
 
-        bool GetValue(Value& buffer)
-        {
-            Value val;
-            if (readFromDeviceValues.size() > 0)
-            {
-                buffer = readFromDeviceValues.front();
-                readFromDeviceValues.pop_front();
-                return true;
-            }
-            return false;          
-        }
+void Characteristic::SetStatus(CharStatus status)
+{
+    this->status = status;
+}
 
-        uint32_t ReadValuesCount() const
-        {
-            return this->readFromDeviceValues.size();
-        }
+CharStatus Characteristic::GetStatus()
+{
+    return this->status;
+}
 
-        void SetStatus(CharStatus status)
-        {
-            this->status = status;
-        }
+void Characteristic::SetMode(uint8_t mode)
+{
+    this->mode = mode;
+}
 
-        CharStatus GetStatus(bool reset = false)
-        {
-            CharStatus temp = this->status;
-            if (reset)
-            {
-                this->status = CharStatus::TO_BE_READ;
-            }
-            return temp;
-        }
-
-    private:
-        CharStatus status = CharStatus::TO_BE_READ;
-        std::list<Value> readBuffer;
-        std::list<Value> writeBuffer;
-};
+uint8_t Characteristic::GetMode()
+{
+    return this->mode;
+}

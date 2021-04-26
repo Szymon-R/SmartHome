@@ -15,3 +15,33 @@ BLEAdvertisedDevice* DeviceUtils::FindDeviceByName(std::vector<BLEAdvertisedDevi
     }
     return output;
 }
+
+bool DeviceUtils::HasAnyWrite(Bluetooth::Device& dev)
+{
+    auto all = dev.GetAll();
+    for (auto& pair : all)
+    {
+        for (auto chara : pair.second)
+        {
+            if (chara->GetMode() | Bluetooth::Mode::WRITE)
+            {
+                return true;
+            }
+        }
+    }
+}
+
+bool DeviceUtils::HasReadOnly(Bluetooth::Device& dev)
+{
+    auto all = dev.GetAll();
+    for (auto& pair : all)
+    {
+        for (auto chara : pair.second)
+        {
+            if (!(chara->GetMode() & Bluetooth::Mode::READ))
+            {
+                return true;
+            }
+        }
+    }
+}

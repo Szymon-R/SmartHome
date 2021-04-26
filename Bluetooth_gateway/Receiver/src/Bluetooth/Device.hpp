@@ -11,11 +11,17 @@ NAMESPACE_START(Bluetooth)
 
 enum class CharStatus
 {
-    TO_BE_READ,
-    TO_BE_WRITTEN,
-    CHAR_PROPERTY_MISMATCH,
+    READY,
+    TIMEOUT,
     SUCCESS,
-    TIMEOUT
+    INVALID
+};
+
+struct Mode
+{
+    static constexpr uint8_t READ = 0x01;
+    static constexpr uint8_t WRITE = 0x02;
+    static constexpr uint8_t NOTIFY = 0x04;
 };
 
 struct Value
@@ -24,70 +30,23 @@ struct Value
     std::string value;
 };
 
-
 class Characteristic
 {
     public:
-        Characteristic(const std::string& charName, const std::string& charCode) :
-            charName(charName), charCode(charCode)
-        {
-            this->InsertToBeRead("1000");
-            this->InsertToBeRead("2000");
-        }
-
+        Characteristic(const std::string& charName, const std::string& charCode);
+        void WriteValue(const std::string& value, uint8_t mode);
+        bool ReadValue(Value& buffer, uint8_t mode);
+        uint32_t ReadValuesCount() const;
+        void SetStatus(CharStatus status);
+        CharStatus GetStatus();
+        void SetMode(uint8_t mode);
+        uint8_t GetMode();
         const std::string charName;
         const std::string charCode;
 
-        void InsertToBeRead(const std::string& value)
-        {
-            Value val;
-            val.value = value;
-            //LOG_LOW("Inserting value: ", val.value, "\n\r");
-            this->readBuffer.push_back(val);
-        }
-
-        void InsertToBeWritten(const std::string& value)
-        {
-            Value val;
-            val.value = value;
-            //LOG_LOW("Inserting value: ", val.value, "\n\r");
-            this->writeBuffer.push_back(val);
-        }
-
-        bool GetValue(Value& buffer)
-        {
-            Value val;
-            if (readFromDeviceValues.size() > 0)
-            {
-                buffer = readFromDeviceValues.front();
-                readFromDeviceValues.pop_front();
-                return true;
-            }
-            return false;          
-        }
-
-        uint32_t ReadValuesCount() const
-        {
-            return this->readFromDeviceValues.size();
-        }
-
-        void SetStatus(CharStatus status)
-        {
-            this->status = status;
-        }
-
-        CharStatus GetStatus(bool reset = false)
-        {
-            CharStatus temp = this->status;
-            if (reset)
-            {
-                this->status = CharStatus::TO_BE_READ;
-            }
-            return temp;
-        }
-
     private:
-        CharStatus status = CharStatus::TO_BE_READ;
+        uint8_t mode;
+        CharStatus status = CharStatus::READY;
         std::list<Value> readBuffer;
         std::list<Value> writeBuffer;
 };
