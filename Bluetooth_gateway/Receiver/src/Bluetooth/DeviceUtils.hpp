@@ -13,7 +13,7 @@ class DeviceUtils
     public:
         static BLEAdvertisedDevice* FindDeviceByName(std::vector<BLEAdvertisedDevice>& devices, const std::string& name);
         static bool HasAnyWrite(Bluetooth::Device& dev);
-        static bool HasReadOnly(Bluetooth::Device& dev);
+        static bool HasOnlyRead(Bluetooth::Device& dev);
 };
 
 

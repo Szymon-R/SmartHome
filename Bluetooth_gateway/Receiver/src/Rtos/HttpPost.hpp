@@ -4,7 +4,10 @@
 #include "../Utils/Utils.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Utils/NetworkCredentials.hpp"
+#include "../Network/JsonBuilder.hpp"
+#include "../Network/JsonParser.hpp"
 #include "../Utils/TimerMilis.hpp"
+#include "../Bluetooth/DeviceList.hpp"
 #include "Task.hpp"
 
 #include "freertos/queue.h"
@@ -21,16 +24,19 @@ class HttpPost : public Task
 {
     public:
         HttpPost(std::string serverName, unsigned int networkTimeout = 5000, unsigned int refreshFrequency = 2000);
-        void Execute(std::string data, const int priority = 3, const int stackSize = 5000);
+        void Execute(const int priority = 3, const int stackSize = 5000);
         ~HttpPost() override;
+        void InsertData(std::string&& data);
+        bool HasReceivedData();
         
     protected:
         static void Run(void * ownedObject);
+        std::string GetData();
         Utils::RadioGuard radioGuard;
         unsigned int networkTimeout = 0;
         bool networkConnected = false;
+        QueueHandle_t inQueue;
         std::string serverName;
-        std::string data;
         Utils::TimerMilis timer;
 };
 

@@ -6,13 +6,12 @@ using namespace Rtos;
 
 HttpPost::HttpPost(std::string serverName, unsigned int networkTimeout, unsigned int refreshFrequency)
 {
-    this->statusQueue =  xQueueCreate(HttpHandler::QUEUE_SIZE, sizeof(int*));
+    this->inQueue =  xQueueCreate(HttpHandler::QUEUE_SIZE, sizeof(std::string*));
     this->networkTimeout = networkTimeout;
     this->serverName = serverName;
 }
 
-void HttpPost::Execute(std::string data, const int priority, const int stackSize) : 
-    data(std::move(data))
+void HttpPost::Execute(const int priority, const int stackSize)
 {
     int result = xTaskCreate(HttpPost::Run,
                 "HttpPost",
@@ -23,13 +22,30 @@ void HttpPost::Execute(std::string data, const int priority, const int stackSize
                 );
     if (result != pdPASS)
     {
-        LOG_HIGH("Couldn't create task: HttpPost. Reason: ",result,"\r\n");
+        LOG_HIGH("Couldn't create task: HttpPost. Reason: ", result, "\r\n");
     }
 }
 
 HttpPost::~HttpPost()
 {
     LOG_LOW("HttpPost destructor called\r\n");
+    while (uxQueueSpacesAvailable(this->inQueue) != HttpPost::QUEUE_SIZE)
+    {
+        std::string* buffer = nullptr;
+        xQueueReceive(this->inQueue, &buffer, 0);
+        if (!buffer)
+        {
+            LOG_HIGH("Empty element received from queue\r\n");
+        }
+        else
+        {
+            delete buffer;
+        }
+    }
+    if (this->taskHandle)
+    {
+        vTaskDelete(this->taskHandle);
+    }
 }
 
 void HttpPost::Run(void * ownedObject)
@@ -41,11 +57,26 @@ void HttpPost::Run(void * ownedObject)
     static constexpr int FINALIZE = 4;
 
     HttpPost* caller = reinterpret_cast<HttpPost*>(ownedObject);
-    int state = INIT;
+    int state = IDLE;
     while (1)
     {
         switch (state)
         {
+            case IDLE:
+            {
+                if (caller->HasReceivedData())
+                {
+                    LOG_MEDIUM("Http handler received json data\n\r");
+                    state = INIT;
+                }
+                else
+                {
+                    //LOG_MEDIUM("Didn't receive data\n\r");
+                    vTaskDelay(200);
+                }
+            }
+            break;
+
             case INIT:
             {
                 if (caller->radioGuard.Acquire(Utils::Protocol::WIFI, 3000))
@@ -89,31 +120,55 @@ void HttpPost::Run(void * ownedObject)
                 // If you need an HTTP request with a content type: application/json, use the following:
                 http.addHeader("Content-Type", "application/json");
                // int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
-                int httpResponseCode = http.POST(caller->data.c_str());
+                std::string data(caller->GetData());
+                int httpResponseCode = http.POST(data.c_str());
                 LOG_MEDIUM("HTTP Response code: ", httpResponseCode, "\n\r");
                     
                 http.end();
-                state = EXIT;
+                state = FINALIZE;
             }
             break;
 
-            case FINISH:
+            case FINALIZE:
             {
                 caller->radioGuard.Release(Utils::Protocol::WIFI, 3000);
                 state = IDLE;
             }
+            break;
 
             case EXIT:
             {
-                caller->radioGuard.Release(Utils::Protocol::WIFI, 3000);
-                state = IDLE;
+                break;
             }
             break;
-
-            case 
 
             default:
             break;
         }
     }
+}
+
+void HttpPost::InsertData(std::string&& data)
+{
+    std::string *data2  = new std::string(std::move(data));
+    xQueueSend(this->inQueue, (void*)&data2, 0); 
+}
+
+
+bool HttpPost::HasReceivedData()
+{
+    return uxQueueMessagesWaiting(this->inQueue) != 0;
+}
+
+std::string HttpPost::GetData()
+{
+    std::string* buffer = nullptr;
+    xQueueReceive(this->inQueue, &buffer, 0);
+    std::string out = "";
+    if (buffer != nullptr)
+    {
+        out = *buffer;
+        delete buffer;
+    }
+    return out;
 }

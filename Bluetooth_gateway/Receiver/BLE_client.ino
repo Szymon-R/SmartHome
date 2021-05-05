@@ -22,6 +22,7 @@
 #include "src/Rtos/TaskRead.hpp"
 #include "src/Rtos/Scheduler.hpp"
 #include "src/Rtos/HttpHandler.hpp"
+#include "src/Rtos/HttpPost.hpp"
 #include "src/Network/Json.hpp"
 #include "src/Drivers/Timer.hpp"
 #include "src/Network/JsonBuilder.hpp"
@@ -35,12 +36,9 @@ void setup()
 
 void loop() 
 {  
-   Rtos::HttpHandler httpHandler("http://192.168.1.2:1880/update-sensor");
-   LOG_HIGH("Starting program\n\r");
-
-    Bluetooth::Scanner reader;
-    reader.Scan();
-    while (!reader.IsScanReady()); 
+    Rtos::HttpPost httpPost("http://192.168.1.2:1880/update-sensor");
     LOG_LOW("Scan completed\r\n");
-   // httpHandler.Execute();
+    httpPost.Execute();
+    const auto jsons =  Network::JsonBuilder::Create(Bluetooth::Devices::devices);
+    httpPost.InsertData(Network::JsonParser::Parse(jsons));
 }
