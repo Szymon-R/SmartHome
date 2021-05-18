@@ -31,7 +31,7 @@ bool DeviceUtils::HasAnyWrite(Bluetooth::Device& dev)
     }
 }
 
-bool DeviceUtils::HasReadOnly(Bluetooth::Device& dev)
+bool DeviceUtils::HasOnlyRead(Bluetooth::Device& dev)
 {
     auto all = dev.GetAll();
     for (auto& pair : all)

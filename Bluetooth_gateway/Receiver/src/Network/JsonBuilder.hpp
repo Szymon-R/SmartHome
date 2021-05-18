@@ -16,7 +16,7 @@ class JsonBuilder
         static Json Create(const std::vector<Bluetooth::Device>& devices);
         static Json Create(const Bluetooth::Device& dev);
         static Json Create(const Bluetooth::Service& serv);
-        static Json Create(Bluetooth::Characteristic& chr);
+        static Json Create(const Bluetooth::Characteristic& chr);
         static Json Create(const Bluetooth::Value& val);
         static Json Create(const std::string& jsonData);
 

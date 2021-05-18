@@ -174,10 +174,12 @@ class Device
         }
         return out;
     }
-    void InsertValue(Characteristic* characteristic, const std::string& value)
+
+    void InsertValue(Characteristic* characteristic, const std::string& value, uint8_t mode)
     {
-        characteristic->InsertValue(value);
+        characteristic->WriteValue(value, mode);
     }
+
     uint32_t ServCount() const
     {
         return services.size();

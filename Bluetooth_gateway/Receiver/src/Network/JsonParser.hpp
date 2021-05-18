@@ -19,7 +19,6 @@ class JsonParser
         static std::string Indent(const int counter);
         static std::string Apostrof(std::string element);
         static std::string Parse(const std::vector<Element>& elements);
-        static std::string Indent(const int couter);
 };
 
 NAMESPACE_END

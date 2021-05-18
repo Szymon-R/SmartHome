@@ -65,7 +65,7 @@ void ReadOnce::Run(void* ownedObject)
                 {
                     std::string value = pRemoteCharacteristic->readValue();
                     LOG_LOW("Read value: ", value, "\n\r");
-                    caller->dev.InsertValue(caller->characteristic, value);
+                    caller->characteristic->WriteValue(value, Bluetooth::Mode::READ);
                     caller->InsertStatus(Status::VALUE_READ);
                 }
             }
@@ -110,7 +110,8 @@ void ReadAll::Run(void* ownedObject)
     static constexpr int EXIT = 3;
     ReadAll* caller = reinterpret_cast<ReadAll*>(ownedObject);
     int state = INIT;
-    int prevState = RUN;
+    int prevState = 500;
+    LOG_HIGH("Starting the right task\n\r");
     while (1)
     {
         if (state != prevState)
@@ -140,7 +141,6 @@ void ReadAll::Run(void* ownedObject)
                         vTaskSuspend(NULL);
                     }
                 }
-
             }
             break;
 
@@ -173,12 +173,11 @@ void ReadAll::Run(void* ownedObject)
                                 {
                                     std::string value = pRemoteCharacteristic->readValue();
                                     LOG_LOW("Read value: ", value, "\n\r");
-                                    characteristic.
+                                    const_cast<Bluetooth::Characteristic&>(characteristic).WriteValue(value, Bluetooth::Mode::READ);
                                     //caller->dev.InsertValue(const_cast<Bluetooth::Characteristic*>(&characteristic), value);
                                     caller->InsertStatus(Status::VALUE_READ);
                                 }
                             }
-                            
                         }
                     }
                     caller->client->disconnect();

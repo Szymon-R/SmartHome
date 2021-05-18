@@ -6,7 +6,7 @@ using namespace Rtos;
 
 HttpPost::HttpPost(std::string serverName, unsigned int networkTimeout, unsigned int refreshFrequency)
 {
-    this->inQueue =  xQueueCreate(HttpHandler::QUEUE_SIZE, sizeof(std::string*));
+    this->inQueue =  xQueueCreate(HttpPost::QUEUE_SIZE, sizeof(std::string*));
     this->networkTimeout = networkTimeout;
     this->serverName = serverName;
 }
@@ -138,6 +138,7 @@ void HttpPost::Run(void * ownedObject)
 
             case EXIT:
             {
+                state = IDLE;
                 break;
             }
             break;

@@ -8,9 +8,10 @@ Json JsonBuilder::Create(const std::vector<Bluetooth::Device>& devices)
 {
     std::vector<Json> jsons;
     jsons.reserve(devices.size());
+    LOG_LOW("Devices size: ", devices.size());
     for(size_t i = 0; i < devices.size(); ++i)
     {
-        jsons[i] = JsonBuilder::Create(devices[i]);
+       jsons.push_back(JsonBuilder::Create(devices[i]));
     }
     return Json{"Devices", jsons};
 }
@@ -19,7 +20,7 @@ Json JsonBuilder::Create(const std::vector<Bluetooth::Device>& devices)
 
 Json JsonBuilder::Create(const Bluetooth::Device& dev)
 {
-    auto services = dev.GetServices();
+    auto& services = dev.GetServices();
 
     std::vector<Json> jServices;
     jServices.reserve(dev.ServCount() + 1);
@@ -50,14 +51,14 @@ Json JsonBuilder::Create(const Bluetooth::Service& serv)
 }
 
 
-Json JsonBuilder::Create(Bluetooth::Characteristic& chr)
+Json JsonBuilder::Create(const Bluetooth::Characteristic& chr)
 {
     Bluetooth::Value val;
     std::vector<Json> values;
     values.reserve(chr.ReadValuesCount() + 2);
     values.push_back(Json{"char_name", chr.charName});
     values.push_back(Json{"char_code", chr.charCode});
-    while (chr.ReadValue(val, Bluetooth::Mode::READ))
+    while (const_cast<Bluetooth::Characteristic&>(chr).ReadValue(val, Bluetooth::Mode::READ))
     {
         values.push_back(JsonBuilder::Create(val));
     }

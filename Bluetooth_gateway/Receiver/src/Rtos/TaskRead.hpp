@@ -24,7 +24,7 @@ class Read : public Task
 {
     public:
         Read(Bluetooth::Device& dev, BLEAdvertisedDevice& scannedDev);
-        void Execute(const int priority = 3, const int stackSize = 3000) override {}
+        void Execute(const int priority = 3, const int stackSize = 3000) override {LOG_LOW("Read task execute\r\n");}
     protected:
         Utils::RadioGuard radioGuard;
         Bluetooth::Device& dev;
@@ -52,7 +52,7 @@ class ReadAll : public Read
 {
     public:
         using Read::Read;
-        void Execute(const int priority = 3, const int stackSize = 3000) override;
+        void Execute(const int priority = 3, const int stackSize = 15000) override;
         ~ReadAll() override;
 
     private:

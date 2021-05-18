@@ -24,16 +24,17 @@ class Scheduler : public Task
 {
 public:
     Scheduler();
+    ~Scheduler();
     void Init();
-    void Execute(const int priority = 3, const int stackSize = 3000) override;
+    void Execute(const int priority = 3, const int stackSize = 10000) override;
 
 private:
     static void Run(void * ownedObject);
     void RunBluetoothTasks(std::vector<BLEAdvertisedDevice>& scanned);
-    
+    bool MonitorTasks();
     Bluetooth::Scanner scanner;
     std::vector<Bluetooth::Device>& bluetoothDevices;
-    std::vector<Rtos::Read> tasks;
+    std::vector<std::unique_ptr<Rtos::Task>> tasks;
 };
 
 NAMESPACE_END
