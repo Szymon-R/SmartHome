@@ -43,9 +43,8 @@ void loop()
     while(true)
     {
         scheduler.Execute();
-        vTaskDelay(15000);
+        vTaskDelay(7000);
         const auto jsons =  Network::JsonBuilder::Create(Bluetooth::Devices::devices);
         httpPost.InsertData(Network::JsonParser::Parse(jsons));
     }
-
 }

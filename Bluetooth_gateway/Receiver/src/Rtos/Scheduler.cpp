@@ -49,15 +49,11 @@ void Scheduler::Run(void * ownedObject)
         LOG_LOW("Scan completed\r\n");
 
         auto detectedDevice = caller.scanner.GetDetectedDevices();
-        LOG_LOW("Size: ", detectedDevice.size(), "\n\r");
-        for (auto& scan: detectedDevice) 
-        {
-           // LOG_LOW(scan.getName(), "\n\r");
-        }
+        LOG_LOW("Number of devices found: ", detectedDevice.size(), "\n\r");
 
         // Run specific bluetooth tasks
         caller.RunBluetoothTasks(detectedDevice);
-        vTaskDelay(1000);
+        vTaskDelay(200);
 
         // Wait until tasks are complete
         LOG_LOW("Starting waiting for tasks\n\r");
@@ -81,16 +77,13 @@ void Scheduler::RunBluetoothTasks(std::vector<BLEAdvertisedDevice>& scanned)
                     return scan.getName() == ble.deviceName; });
         if (it != bluetoothDevices.end())
         {
-            LOG_LOW("Device found!\r\n");
+            LOG_LOW("Device: ", it->deviceName," found\r\n");
             if (Bluetooth::DeviceUtils::HasOnlyRead(*it))
             {
-                LOG_LOW("Pushing device\r\n");
                 this->tasks.emplace_back(std::unique_ptr<Rtos::ReadAll>(new ReadAll(*it, scan)));
             }
-            LOG_LOW("Run execute\r\n");
             this->tasks.back()->Execute();
             vTaskDelay(50);
-            LOG_LOW("After execute\r\n");
         }
     }
 }
@@ -110,6 +103,5 @@ bool Scheduler::MonitorTasks()
     {
         tasks.clear();
     }
-    //LOG_LOW("Run tasks size:", this->tasks.size(), "\r\n");
     return (this->tasks.size() == 0U);
 }
