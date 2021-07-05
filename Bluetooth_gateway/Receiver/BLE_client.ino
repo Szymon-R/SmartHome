@@ -37,14 +37,16 @@ void setup()
 void loop() 
 {  
     Rtos::HttpPost httpPost("http://192.168.1.2:1880/update-sensor");
-    Rtos::Scheduler scheduler;
-    scheduler.Init();
+    
+    
     httpPost.Execute();
     while(true)
     {
+        Rtos::Scheduler scheduler;
+        scheduler.Init();
         scheduler.Execute();
-        vTaskDelay(7000);
+        vTaskDelay(10000);
         const auto jsons =  Network::JsonBuilder::Create(Bluetooth::Devices::devices);
-        httpPost.InsertData(Network::JsonParser::Parse(jsons));
+       // httpPost.InsertData(Network::JsonParser::Parse(jsons));
     }
 }

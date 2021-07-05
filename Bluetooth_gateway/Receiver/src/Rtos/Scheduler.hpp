@@ -33,7 +33,7 @@ private:
     void RunBluetoothTasks(std::vector<BLEAdvertisedDevice>& scanned);
     bool MonitorTasks();
     Bluetooth::Scanner scanner;
-    std::vector<Bluetooth::Device>& bluetoothDevices;
+    std::vector<Bluetooth::Device> bluetoothDevices;
     std::vector<std::unique_ptr<Rtos::Task>> tasks;
 };
 
