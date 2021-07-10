@@ -9,11 +9,12 @@ Scanner::Scanner()
 
 bool Scanner::Scan(const ScanConfig& config)
 {
+    this->scanReady = false;
     if (!this->radioGuard.Acquire(Utils::Protocol::BLUETOOTH))
     {
+        LOG_LOW("Didnt acquire to scan\n\r");
         return false;
     }
-    this->scanReady = false;
     this->devices.clear();
     if (this->userCallback)
     {   

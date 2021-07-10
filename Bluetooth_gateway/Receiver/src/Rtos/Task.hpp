@@ -25,7 +25,8 @@ enum class Status : int
     SERVICE_NOT_FOUND,
     NOT_CONNECTED,
     CONNECTED,
-    CHARACTERISTIC_NOT_FOUND
+    CHARACTERISTIC_NOT_FOUND,
+    FINISHED
 };
 
 class Task
@@ -41,7 +42,7 @@ class Task
         static constexpr int QUEUE_SIZE = 10;
         Status lastStatus;
         void InsertStatus(Status status);
-        TaskHandle_t *taskHandle = nullptr;
+        TaskHandle_t taskHandle = nullptr;
 };
 
 NAMESPACE_END

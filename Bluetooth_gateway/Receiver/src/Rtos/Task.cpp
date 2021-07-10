@@ -30,7 +30,7 @@ Status Task::GetLastStatus()
 Task::~Task()
 {
     LOG_LOW("Task destructor called\r\n");
-  /*  while (uxQueueSpacesAvailable(this->statusQueue) != Task::QUEUE_SIZE)
+    while (uxQueueSpacesAvailable(this->statusQueue) != Task::QUEUE_SIZE)
     {
         int* buffer = nullptr;
         xQueueReceive(this->statusQueue, &buffer, 0);
@@ -42,5 +42,10 @@ Task::~Task()
         {
             delete buffer;
         }
-    }*/
+    }
+    if (this->taskHandle != nullptr)
+    {
+        vTaskDelete(this->taskHandle);
+        this->taskHandle = nullptr;
+    }
 }

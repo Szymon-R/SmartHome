@@ -19,6 +19,7 @@ bool RadioGuard::Acquire(Protocol p, uint32_t timeout)
         else if(timer.IsExpired())
         {
             out = false;
+            LOG_LOW("Timer expired\n\r");
             break;
         }
         vTaskDelay(50);
@@ -59,6 +60,7 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
     bool out = false;
     if (xSemaphoreTake(this->mutex, 100) == pdTRUE)
     {
+        //LOG_LOW("Mutex take\n\r");
         //LOG_HIGH("Mutex taken\n\r");
         if (p == Protocol::BLUETOOTH)
         {
@@ -66,7 +68,7 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
             {
                 if (bluetoothAgents++ == 0)
                 {
-                    LOG_HIGH("Bluetooth init\n\r");
+                    //LOG_HIGH("Bluetooth init\n\r");
                     BLEDevice::init("");
                 }
                 out = true;
@@ -78,7 +80,7 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
             {
                 if (wifiAgents++ == 0)
                 {
-                    LOG_HIGH("Wifi init\n\r");
+                    //LOG_HIGH("Wifi init\n\r");
                     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
                     esp_wifi_init(&cfg);
                     WiFi.mode(WIFI_MODE_STA);
@@ -86,6 +88,7 @@ bool RadioGuard::RadioSynchro::Acquire(Protocol p, uint32_t timeout)
                 out = true;
             }
         }
+        //LOG_LOW("Mutex give\n\r");
         xSemaphoreGive(this->mutex);
         
     }
@@ -97,6 +100,7 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
     bool out = false;
     if (xSemaphoreTake(this->mutex, 100) == pdTRUE)
     {
+       // LOG_LOW("Mutex take\n\r");
         if (p == Protocol::BLUETOOTH)
         {
             bluetoothAgents--;
@@ -106,9 +110,9 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             }
             else if (bluetoothAgents == 0)
             {
-                LOG_HIGH("Bluetooth deinit\n\r");
+                //LOG_HIGH("Bluetooth deinit\n\r");
                 BLEDevice::deinit(false);
-                LOG_HIGH("Bluetooth deinit2\n\r");
+                //LOG_HIGH("Bluetooth deinit2\n\r");
             }
             out = true;
         }
@@ -121,7 +125,7 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             }
             else if (wifiAgents == 0)
             {
-                LOG_HIGH("Wifi deinit\n\r");
+                //LOG_HIGH("Wifi deinit\n\r");
                 WiFi.mode(WIFI_OFF);
                 esp_wifi_stop();
                 esp_wifi_deinit();
@@ -129,6 +133,7 @@ bool RadioGuard::RadioSynchro::Release(Protocol p, uint32_t timeout)
             out = true;
         }
         vTaskDelay(200);
+        //LOG_LOW("Mutex give\n\r");
         xSemaphoreGive(this->mutex);
     }
     return out;  

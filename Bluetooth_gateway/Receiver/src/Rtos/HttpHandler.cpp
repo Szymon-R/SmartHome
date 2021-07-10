@@ -20,7 +20,7 @@ void HttpHandler::Execute(const int priority, const int stackSize)
                 stackSize,
                 (void*)this,
                 priority,
-                this->taskHandle
+                &this->taskHandle
                 );
     if (result != pdPASS)
     {

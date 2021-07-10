@@ -21,7 +21,7 @@ void ReadOnce::Execute(const int priority, const int stackSize)
                     stackSize,
                     (void*)this,
                     priority,
-                    this->taskHandle
+                    &this->taskHandle
                     ) != pdPASS )
     {
         LOG_HIGH("Couldn't create task: ReadOnce\r\n");
@@ -94,7 +94,7 @@ void ReadAll::Execute(const int priority, const int stackSize)
                     stackSize,
                     (void*)this,
                     priority,
-                    this->taskHandle
+                    &this->taskHandle
                     ) != pdPASS )
     {
         LOG_HIGH("Couldn't create task: ReadAll\r\n");
@@ -174,7 +174,6 @@ void ReadAll::Run(void* ownedObject)
                                     std::string value = pRemoteCharacteristic->readValue();
                                     LOG_LOW("Read value: ", value, "\n\r");
                                     const_cast<Bluetooth::Characteristic&>(characteristic).WriteValue(value, Bluetooth::Mode::READ);
-                                    //caller->dev.InsertValue(const_cast<Bluetooth::Characteristic*>(&characteristic), value);
                                     caller->InsertStatus(Status::VALUE_READ);
                                 }
                             }
@@ -197,6 +196,7 @@ void ReadAll::Run(void* ownedObject)
                 {
                     LOG_HIGH("Couldn't acquire bluetooth radio for ReadAll class.\n\r");
                 }
+                caller->InsertStatus(Status::FINISHED);
                 vTaskSuspend(NULL);
                 state = IDLE;
             }

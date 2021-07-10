@@ -12,6 +12,11 @@ Scheduler::Scheduler() :
 Scheduler::~Scheduler()
 {
     LOG_LOW("Scheduler destructor called\r\n");
+    if (this->taskHandle != nullptr)
+    {
+        vTaskDelete(this->taskHandle);
+        this->taskHandle = nullptr;
+    }
 }
 
 void Scheduler::Init()
@@ -29,7 +34,7 @@ void Scheduler::Execute(const int priority, const int stackSize)
                     stackSize,
                     (void*)this,
                     priority,
-                    this->taskHandle
+                    &this->taskHandle
                     ) != pdPASS )
     {
         LOG_HIGH("Couldn't create task: Scheduler\r\n");
@@ -93,7 +98,7 @@ bool Scheduler::MonitorTasks()
     bool tasksFinished = true;
     for (size_t i = 0; i < this->tasks.size(); ++i)
     {
-        if (this->tasks[i]->GetLastStatus() == Rtos::Status::NO_STATUS)
+        if (this->tasks[i]->GetLastStatus() != Rtos::Status::FINISHED)
         {
             tasksFinished = false;
             break;

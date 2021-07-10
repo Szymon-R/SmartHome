@@ -28,6 +28,7 @@ class HttpPost : public Task
         ~HttpPost() override;
         void InsertData(std::string&& data);
         bool HasReceivedData();
+        std::string ReadData();
         
     protected:
         static void Run(void * ownedObject);

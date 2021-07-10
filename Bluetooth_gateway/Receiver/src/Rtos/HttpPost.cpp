@@ -18,7 +18,7 @@ void HttpPost::Execute(const int priority, const int stackSize)
                 stackSize,
                 (void*)this,
                 priority,
-                this->taskHandle
+                &this->taskHandle
                 );
     if (result != pdPASS)
     {
@@ -71,7 +71,6 @@ void HttpPost::Run(void * ownedObject)
                 }
                 else
                 {
-                    //LOG_MEDIUM("Didn't receive data\n\r");
                     vTaskDelay(200);
                 }
             }
