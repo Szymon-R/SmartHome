@@ -34,7 +34,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
 
-  BLEDevice::init("Long name works now");
+  BLEDevice::init("Temperature sensor");
   pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(SERVICE_UUID);
   pServer->setCallbacks(&onDisc);
@@ -59,10 +59,14 @@ void setup() {
 
 void loop() 
 {
-  static int counter = 48;
+  static int counter = 100;
   char buffer [33];
   itoa (counter,buffer,10);
   pCharacteristic->setValue(buffer);
   ++counter;
+  if (counter > 199)
+  {
+      counter = 0;
+  }
   delay(2000);
 }
