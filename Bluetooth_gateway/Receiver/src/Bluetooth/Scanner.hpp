@@ -6,6 +6,7 @@
 #include "../Utils/Utils.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Utils/RadioGuard.hpp"
+#include "DeviceList.hpp"
 #include <BLEDevice.h>
 
 NAMESPACE_START(Bluetooth)

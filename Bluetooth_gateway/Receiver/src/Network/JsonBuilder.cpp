@@ -8,7 +8,7 @@ Json JsonBuilder::Create(const std::vector<Bluetooth::Device>& devices)
 {
     std::vector<Json> jsons;
     jsons.reserve(devices.size());
-    LOG_LOW("Devices size: ", devices.size());
+    LOG_LOW("Devices size: ", devices.size(), "\n\r");
     for(size_t i = 0; i < devices.size(); ++i)
     {
        jsons.push_back(JsonBuilder::Create(devices[i]));

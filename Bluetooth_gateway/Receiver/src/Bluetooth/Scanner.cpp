@@ -78,8 +78,7 @@ Scanner::ScanCallback::ScanCallback(std::vector<BLEAdvertisedDevice>& devices) :
 
 void Scanner::ScanCallback::onResult(BLEAdvertisedDevice advertisedDevice)
 {
-
-    auto IsDeviceValid = [&]()
+   /* auto IsDeviceValid = [&]()
     {
         if (advertisedDevice.getName() == "")
         {
@@ -87,13 +86,15 @@ void Scanner::ScanCallback::onResult(BLEAdvertisedDevice advertisedDevice)
         }
         else
         {
-            auto iter = std::find_if(this->devices.begin(), this->devices.end(), [&](BLEAdvertisedDevice& device) -> bool
+            auto iter = std::find_if(Devices::devices.begin(), Devices::devices.end(), [&](Device& device) -> bool
             {
-                return device.getName() == advertisedDevice.getName();
+                LOG_LOW("Device: ", device.deviceName, "\n\r");
+                LOG_LOW("Advert device: ",advertisedDevice.getName(), "\n\r");
+                return device.deviceName == advertisedDevice.getName();
             });
-            if (iter == this->devices.end())
+            if (iter == Devices::devices.end())
             {
-                return true;
+                return false;
             }
         }
     };
@@ -101,6 +102,17 @@ void Scanner::ScanCallback::onResult(BLEAdvertisedDevice advertisedDevice)
     {
         LOG_LOW("Adding device: ",advertisedDevice.getName(), "\n\r");
         this->devices.emplace_back(advertisedDevice);
+    }*/
+
+    LOG_LOW("Checking device: ", advertisedDevice.getName(), "\n\r");
+    for (auto& device : Devices::devices)
+    {
+        if(advertisedDevice.getName() == device.deviceName)
+        {
+            LOG_LOW("Device found\n\r");
+           // this->devices.emplace_back(advertisedDevice);
+            break;
+        }
     }
 }
 
