@@ -104,14 +104,34 @@ void Scanner::ScanCallback::onResult(BLEAdvertisedDevice advertisedDevice)
         this->devices.emplace_back(advertisedDevice);
     }*/
 
-    LOG_LOW("Checking device: ", advertisedDevice.getName(), "\n\r");
-    for (auto& device : Devices::devices)
+    // Ignore devices without name
+    if (advertisedDevice.getName() == "")
     {
-        if(advertisedDevice.getName() == device.deviceName)
+        return;
+    }
+    else 
+    {
+        // Check if device is already on the list
+        auto iter = std::find_if(this->devices.begin(), this->devices.end(), [&](BLEAdvertisedDevice& device) -> bool
         {
-            LOG_LOW("Device found\n\r");
-           // this->devices.emplace_back(advertisedDevice);
-            break;
+            return device.getName() == advertisedDevice.getName();
+        });
+        if (iter != this->devices.end())
+        {
+            return;
+        }
+        else
+        {
+            // check if device is one the list of devices
+            auto iter = std::find_if(Bluetooth::Devices::devices.begin(), Bluetooth::Devices::devices.end(), [&](Bluetooth::Device& device) -> bool
+            {
+                return device.deviceName == advertisedDevice.getName();
+            });
+            if (iter != Bluetooth::Devices::devices.end())
+            {
+                LOG_LOW("Device found: ",advertisedDevice.getName() , "\n\r");
+                this->devices.emplace_back(advertisedDevice);
+            }
         }
     }
 }
