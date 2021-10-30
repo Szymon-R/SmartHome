@@ -40,10 +40,10 @@ void setup() {
 
   BLEDevice::init("Water sensor");
   pServer = BLEDevice::createServer();
-
-  BLEService *pService = pServer->createService(SERVICE_UUID_1);
   pServer->setCallbacks(&onDisc);
 
+  BLEService *pService = pServer->createService(SERVICE_UUID_1);
+ 
   pCharacteristic1_1 = pService->createCharacteristic(CHARACTERISTIC_UUID_1_1, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   pCharacteristic1_1-> addDescriptor (new BLE2902 ());
   pCharacteristic1_1->setValue("Hello World says Neil");
@@ -54,7 +54,7 @@ void setup() {
   pService->start();
 
   BLEService *pService2 = pServer->createService(SERVICE_UUID_2);
-  pCharacteristic2_1 = pService->createCharacteristic(CHARACTERISTIC_UUID_2_1, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  pCharacteristic2_1 = pService2->createCharacteristic(CHARACTERISTIC_UUID_2_1, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   pCharacteristic2_1-> addDescriptor (new BLE2902 ());
   pCharacteristic2_1->setValue("Hello World says Neil");
   pService2->start();
@@ -72,16 +72,13 @@ void setup() {
 
 void loop() 
 {
-  static int counter = 200;
-  char buffer [33];
-  itoa (counter,buffer,10);
-  pCharacteristic1_1->setValue(buffer);
-  pCharacteristic1_2->setValue(buffer);
-  pCharacteristic2_1->setValue(buffer);
-  ++counter;
-  if (counter > 299)
-  {
-      counter = 299;
-  }
+  std::string value{"Water sensor Serv1 Char1"};
+  pCharacteristic1_1->setValue(value);
+
+  value = {"Water sensor Serv1 Char2"};
+  pCharacteristic1_2->setValue(value);
+
+  value = {"Water sensor Serv2 Char1"};
+  pCharacteristic2_1->setValue(value);
   delay(2000);
 }
